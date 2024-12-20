@@ -24,29 +24,73 @@ class _ConnexionState extends State<Connexion> {
     try {
       final response = await ApiService.login(emailInput.text, passwordInput.text);
 
-      if (response.statusCode == 200) {
-        // Supposons que le serveur renvoie un token ou un succès
-        final responseData = jsonDecode(response.body);
+      switch (response.statusCode) {
+        case 200:
+        // Succès - L'utilisateur est authentifié
+          final responseData = jsonDecode(response.body);
+          String token = responseData['access_token'];
 
-        // Vous pouvez enregistrer le token ici si nécessaire
-        // Exemple : SharedPreferences pour un stockage local
-        // String token = responseData['token'];
+          // Redirection vers la page d'accueil
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomePageScreen(initialIndex: 1),
+            ),
+          );
+          break;
 
-        // Redirection vers la page d'accueil
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePageScreen(initialIndex: 1),
-          ),
-        );
-      } else if (response.statusCode == 422) {
-        // Erreur de validation
-        final errorData = jsonDecode(response.body);
-        showErrorDialog(errorData['message'] ?? 'Données invalides');
-      } else {
-        // Autres erreurs
-        showErrorDialog('Erreur : ${response.statusCode}');
+        case 400:
+        // Requête mal formée
+          showErrorDialog('Requête invalide. Veuillez vérifier les données saisies.');
+          break;
+
+        case 401:
+        // Authentification échouée
+          showErrorDialog('Email ou mot de passe incorrect.');
+          break;
+
+        case 403:
+        // Accès refusé
+          showErrorDialog('Vous n\'êtes pas autorisé à accéder à cette ressource.');
+          break;
+
+        case 404:
+        // Ressource introuvable
+          showErrorDialog('Ressource introuvable. Veuillez réessayer plus tard.');
+          break;
+
+        case 422:
+        // Données invalides
+          final errorData = jsonDecode(response.body);
+          showErrorDialog(errorData['message'] ?? 'Données invalides.');
+          break;
+
+        case 429:
+        // Trop de requêtes
+          showErrorDialog('Trop de requêtes. Veuillez réessayer plus tard.');
+          break;
+
+        case 500:
+        // Erreur serveur
+          showErrorDialog('Erreur interne du serveur. Veuillez réessayer plus tard.');
+          break;
+
+        case 503:
+        // Service indisponible
+          showErrorDialog('Service temporairement indisponible. Veuillez réessayer plus tard.');
+          break;
+
+        case 504:
+        // Délai d'attente dépassé
+          showErrorDialog('Le serveur ne répond pas. Veuillez réessayer plus tard.');
+          break;
+
+        default:
+        // Erreurs inconnues
+          showErrorDialog('Erreur inattendue : ${response.statusCode}');
+          break;
       }
+
     } catch (e) {
       showErrorDialog('Une erreur est survenue. Veuillez réessayer.');
     } finally {
