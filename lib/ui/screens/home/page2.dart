@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Page2 extends StatelessWidget {
   const Page2({Key? key}) : super(key: key);
@@ -73,7 +74,18 @@ class Page2 extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.emoji_food_beverage),
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: SvgPicture.asset(
+                  'images/cheese-3-svgrepo-com.svg',
+                  width: 18,
+                  height: 18,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
               title: const Text('Fromages'),
               onTap: () {
                 Navigator.pop(context);
