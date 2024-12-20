@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'tabs/page1.dart';
-import 'tabs/page2.dart';
-import 'tabs/page3.dart';
-import 'tabs/page4.dart';
+import 'home/page1.dart';
+import 'home/page2.dart';
+import 'home/page3.dart';
+import 'home/page4.dart';
 
-// Screen permettant d'afficher deux tabs : une liste d'éléments et une vue À propos
+// Screen permettant d'afficher deux home : une liste d'éléments et une vue À propos
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({Key? key}) : super(key: key);
 
@@ -13,13 +13,13 @@ class HomePageScreen extends StatefulWidget {
   createState() => _HomePageScreenState();
 }
 
-// State de la page. Il contient les tabs et gère l'affichage
+// State de la page. Il contient les home et gère l'affichage
 class _HomePageScreenState extends State {
   // Index de l'onglet sélectionné au démarrage de la vue nous initialisons à 0
   // pour afficher le premier onglet
   int _currentIndex = 0;
 
-  // Liste des tabs présent dans la page
+  // Liste des home présent dans la page
   final List<Widget> _children = <Widget>[
     const Page1(),
     const Page2(),
@@ -44,7 +44,7 @@ class _HomePageScreenState extends State {
       // Le contenu de la page est affiché est fonction de l'index de la tab sélectionnée
       body: _children[_currentIndex],
 
-      // BottomNavigationBar permet d'afficher les tabs en bas de la page
+      // BottomNavigationBar permet d'afficher les home en bas de la page
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         onTap: onTabTapped,
