@@ -37,6 +37,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _currentIndex != 1 ? AppBar(
+        title: Text(_titles[_currentIndex]),
+      ) : null,
       body: _children[_currentIndex],
       // Affiche la navbar seulement si on n'est pas sur la page login et que l'index <= 2
       bottomNavigationBar: _currentIndex != 0 && _currentIndex <= 4
