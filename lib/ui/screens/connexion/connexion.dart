@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../HomePageScreen.dart';
 
 class Connexion extends StatefulWidget {
   const Connexion({Key? key}) : super(key: key);
@@ -95,7 +96,13 @@ class _ConnexionState extends State<Connexion> {
                         // Bouton de connexion
                         ElevatedButton(
                           onPressed: () {
-                            // Ajouter la logique de connexion ici
+                            // Change l'index dans HomePageScreen pour afficher Page1
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomePageScreen(initialIndex: 1),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xff006FFD),

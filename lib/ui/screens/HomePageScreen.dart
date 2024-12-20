@@ -8,14 +8,21 @@ import 'home/page3.dart';
 import 'home/page4.dart';
 
 class HomePageScreen extends StatefulWidget {
-  const HomePageScreen({Key? key}) : super(key: key);
+  final int initialIndex;
+  const HomePageScreen({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   createState() => _HomePageScreenState();
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
-  int _currentIndex = 1;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   // Page login ajoutée au début de la liste (index 0)
   final List<Widget> _children = const <Widget>[
