@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../../../data/services/api_service.dart';
 import '../HomePageScreen.dart';
 
 class Connexion extends StatefulWidget {
@@ -11,6 +14,65 @@ class Connexion extends StatefulWidget {
 class _ConnexionState extends State<Connexion> {
   final TextEditingController emailInput = TextEditingController();
   final TextEditingController passwordInput = TextEditingController();
+  bool isLoading = false; // Ajout d'un état de chargement
+
+  void login() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await ApiService.login(emailInput.text, passwordInput.text);
+
+      if (response.statusCode == 200) {
+        // Supposons que le serveur renvoie un token ou un succès
+        final responseData = jsonDecode(response.body);
+
+        // Vous pouvez enregistrer le token ici si nécessaire
+        // Exemple : SharedPreferences pour un stockage local
+        // String token = responseData['token'];
+
+        // Redirection vers la page d'accueil
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePageScreen(initialIndex: 1),
+          ),
+        );
+      } else if (response.statusCode == 422) {
+        // Erreur de validation
+        final errorData = jsonDecode(response.body);
+        showErrorDialog(errorData['message'] ?? 'Données invalides');
+      } else {
+        // Autres erreurs
+        showErrorDialog('Erreur : ${response.statusCode}');
+      }
+    } catch (e) {
+      showErrorDialog('Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Erreur'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +95,7 @@ class _ConnexionState extends State<Connexion> {
                         Flexible(
                           child: Center(
                             child: SizedBox(
-                              height: constraints.maxHeight * 0.3, // Hauteur adaptative
+                              height: constraints.maxHeight * 0.3,
                               child: Image.asset(
                                 'images/logoConnexion.png',
                                 fit: BoxFit.contain,
@@ -44,7 +106,6 @@ class _ConnexionState extends State<Connexion> {
 
                         const SizedBox(height: 20),
 
-                        // Texte de bienvenue
                         const Text(
                           'Bienvenue',
                           style: TextStyle(
@@ -55,27 +116,16 @@ class _ConnexionState extends State<Connexion> {
 
                         const SizedBox(height: 20),
 
-                        // Champ email
                         TextFormField(
                           controller: emailInput,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'Adresse Email',
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Veuillez entrer un email';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Veuillez entrer un email valide';
-                            }
-                            return null;
-                          },
                         ),
 
                         const SizedBox(height: 24),
 
-                        // Champ mot de passe
                         TextFormField(
                           controller: passwordInput,
                           obscureText: true,
@@ -83,27 +133,16 @@ class _ConnexionState extends State<Connexion> {
                             border: OutlineInputBorder(),
                             labelText: 'Mot de passe',
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Veuillez entrer un mot de passe';
-                            }
-                            return null;
-                          },
                         ),
 
                         const SizedBox(height: 24),
 
-                        // Bouton de connexion
-                        ElevatedButton(
-                          onPressed: () {
-                            // Change l'index dans HomePageScreen pour afficher Page1
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomePageScreen(initialIndex: 1),
-                              ),
-                            );
-                          },
+                        isLoading
+                            ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                            : ElevatedButton(
+                          onPressed: login,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xff006FFD),
                             minimumSize: const Size(double.infinity, 48),

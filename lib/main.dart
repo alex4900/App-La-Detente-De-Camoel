@@ -1,6 +1,8 @@
+import 'package:android_detente_camoel/ui/screens/connexion/connexion.dart';
 import 'package:flutter/material.dart';
 import 'package:android_detente_camoel/theme.dart';
 import 'package:android_detente_camoel/ui/screens/HomePageScreen.dart';
+import 'package:android_detente_camoel/ui/screens/connexion/loginScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo + API',
       theme: myTheme,
-      home: const HomePageScreen(),
+      home: HomePageScreen(),
     );
   }
 }
