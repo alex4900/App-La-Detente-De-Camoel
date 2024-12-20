@@ -14,109 +14,111 @@ class _ConnexionState extends State<Connexion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 24,
-                  right: 24,
-                  top: 50,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                child: Column(
-                  children: [
-                    // Image de profil
-                    SizedBox(
-                      height: 230,
-                      child: Image.asset(
-                        'assets/profileImage.png',
-                        alignment: Alignment.center,
-                      ),
-                    ),
-
-                    // Texte de bienvenue
-                    Container(
-                      margin: const EdgeInsets.only(top: 52),
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        'Bienvenue',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Center(
+                            child: SizedBox(
+                              height: constraints.maxHeight * 0.3, // Hauteur adaptative
+                              child: Image.asset(
+                                'images/logoConnexion.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
 
-                    // Champ email
-                    Container(
-                      margin: const EdgeInsets.only(top: 22),
-                      child: TextFormField(
-                        controller: emailInput,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Adresse Email',
+                        const SizedBox(height: 20),
+
+                        // Texte de bienvenue
+                        const Text(
+                          'Bienvenue',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer un email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Veuillez entrer un email valide';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
 
-                    // Champ mot de passe
-                    Container(
-                      margin: const EdgeInsets.only(top: 16),
-                      child: TextFormField(
-                        controller: passwordInput,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Mot de passe',
+                        const SizedBox(height: 20),
+
+                        // Champ email
+                        TextFormField(
+                          controller: emailInput,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Adresse Email',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer un email';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Veuillez entrer un email valide';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer un mot de passe';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
 
-                    // Bouton de connexion
-                    Container(
-                      margin: const EdgeInsets.only(top: 24),
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Ajouter la logique de connexion ici
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff006FFD),
-                          textStyle: TextStyle(color: Colors.white, fontSize: 48),
-                          minimumSize: const Size(double.infinity, 48),
+                        const SizedBox(height: 24),
+
+                        // Champ mot de passe
+                        TextFormField(
+                          controller: passwordInput,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Mot de passe',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer un mot de passe';
+                            }
+                            return null;
+                          },
                         ),
-                        child: const Text(
-                          'Connexion',
-                          style: TextStyle(fontSize: 16),
+
+                        const SizedBox(height: 24),
+
+                        // Bouton de connexion
+                        ElevatedButton(
+                          onPressed: () {
+                            // Ajouter la logique de connexion ici
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff006FFD),
+                            minimumSize: const Size(double.infinity, 48),
+                          ),
+                          child: const Text(
+                            'Connexion',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
+
+                        const SizedBox(height: 80),
+                      ],
                     ),
-
-                    // Diviseur
-
-                  ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }

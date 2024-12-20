@@ -1,4 +1,3 @@
-import 'package:android_detente_camoel/ui/screens/connexion/connexion.dart';
 import 'package:flutter/material.dart';
 import 'package:android_detente_camoel/theme.dart';
 import 'package:android_detente_camoel/ui/screens/HomePageScreen.dart';

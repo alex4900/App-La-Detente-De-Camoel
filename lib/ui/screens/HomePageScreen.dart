@@ -15,7 +15,7 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   // Page login ajoutée au début de la liste (index 0)
   final List<Widget> _children = const <Widget>[
@@ -70,7 +70,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   void onTabTapped(int index) {
     setState(() {
-      // Ajoute +1 à l'index pour compenser la page login
       _currentIndex = index + 1;
     });
   }
