@@ -1,11 +1,12 @@
+import 'package:android_detente_camoel/ui/screens/connexion/connexion.dart';
 import 'package:flutter/material.dart';
 
+import 'connexion/connexion.dart';
 import 'home/page1.dart';
 import 'home/page2.dart';
 import 'home/page3.dart';
 import 'home/page4.dart';
 
-// Screen permettant d'afficher deux home : une liste d'éléments et une vue À propos
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({Key? key}) : super(key: key);
 
@@ -13,22 +14,20 @@ class HomePageScreen extends StatefulWidget {
   createState() => _HomePageScreenState();
 }
 
-// State de la page. Il contient les home et gère l'affichage
-class _HomePageScreenState extends State {
-  // Index de l'onglet sélectionné au démarrage de la vue nous initialisons à 0
-  // pour afficher le premier onglet
-  int _currentIndex = 0;
+class _HomePageScreenState extends State<HomePageScreen> {
+  int _currentIndex = 1;
 
-  // Liste des home présent dans la page
-  final List<Widget> _children = <Widget>[
-    const Page1(),
-    const Page2(),
-    const Page3(),
-    const Page4(),
+  // Page login ajoutée au début de la liste (index 0)
+  final List<Widget> _children = const <Widget>[
+    Connexion(),
+    Page1(),
+    Page2(),
+    Page3(),
+    Page4(),
   ];
 
-  // Liste des titres affiché en haut de la page
   final List<String> _titles = <String>[
+    'Connexion',  // Titre pour la page de login
     'Scan QR',
     'Nouvelle commande',
     'Status commandes',
@@ -38,43 +37,41 @@ class _HomePageScreenState extends State {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_currentIndex]),
-      ),
-      // Le contenu de la page est affiché est fonction de l'index de la tab sélectionnée
       body: _children[_currentIndex],
-
-      // BottomNavigationBar permet d'afficher les home en bas de la page
-      bottomNavigationBar: BottomNavigationBar(
+      // Affiche la navbar seulement si on n'est pas sur la page login et que l'index <= 2
+      bottomNavigationBar: _currentIndex != 0 && _currentIndex <= 4
+          ? BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         onTap: onTabTapped,
-        currentIndex: _currentIndex,
+        // Décale l'index de -1 car la page login n'est pas dans la navbar
+        currentIndex: _currentIndex - 1,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Liste',
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'Scan QR',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: 'À Propos',
+            icon: Icon(Icons.add_shopping_cart),
+            label: 'Commander',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Mon Compte',
+            icon: Icon(Icons.list_alt),
+            label: 'Status',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Mon Compte',
+            icon: Icon(Icons.chat),
+            label: 'Chat',
           ),
         ],
-      ),
+      )
+          : null,
     );
   }
 
-  // Méthode appelée lorsqu'on clique sur une tab
   void onTabTapped(int index) {
     setState(() {
-      _currentIndex = index;
+      // Ajoute +1 à l'index pour compenser la page login
+      _currentIndex = index + 1;
     });
   }
 }
