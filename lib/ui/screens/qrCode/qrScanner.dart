@@ -1,9 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
-import 'package:http/http.dart' as http;
+import '../../../utils/QRFonctions.dart'; // Utilisation des fonctions utilitaires pour QR
 import './qrResultat.dart';
-import 'dart:convert';
-import '../../../utils/config.dart';
+import './reservationPassee.dart';
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   String? scannedText;
-  bool isFlashOn = false; // Indique l'état du flash, pour l'icone
+  bool isFlashOn = false; // Indique l'état du flash, pour l'icône
   bool isError = false; // Indique si le QR code est invalide
   String errorMessage = ''; // Message d'erreur à afficher
 
@@ -43,20 +44,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               ),
             ),
           ),
-          // Texte détecté
-          if (scannedText != null)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                color: Colors.black54,
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'QR Code détecté : $scannedText',
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
           // Affichage de l'erreur si le QR code est invalide
           if (isError)
             Align(
@@ -93,7 +80,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
+    controller.scannedDataStream.listen((scanData) async {
+      // Pause la caméra pendant la vérification
       controller.pauseCamera();
 
       setState(() {
@@ -101,65 +89,63 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       });
 
       // Vérifier si le QR code correspond à une réservation
-      _checkReservation(scannedText ?? "");
+      await _validateQRCode(scannedText ?? "");
     });
   }
 
-  Future<void> _checkReservation(String qrCode) async {
-    var headers = {
-      'Accept': 'application/json',
-    };
-    var request = http.Request('GET', Uri.parse('${AppConfig.baseUrl}/reservation/qrCode/?QrCode=$qrCode'));
-    request.body = '''''';
-    request.headers.addAll(headers);
-
+  Future<void> _validateQRCode(String qrCode) async {
     try {
-      http.StreamedResponse response = await request.send();
+      // Appel à la fonction utilitaire pour vérifier la réservation
+      final Map<String, dynamic> data = await checkReservation(qrCode);
 
-      if (response.statusCode == 200) {
-        // Convertir la réponse en chaîne et puis en liste dynamique
-        String responseData = await response.stream.bytesToString();
+      // Si les données sont valides (non vides)
+      if (data.isNotEmpty) {
+        setState(() {
+          isError = false;
+        });
 
-        // Convertir le corps JSON en une liste dynamique
-        final List<dynamic> data = jsonDecode(responseData);
-
-        if (data.isNotEmpty) {
-          // Si les données ne sont pas vides, traiter les informations de réservation
-          setState(() {
-            isError = false;
-          });
-
-          // Rediriger vers la page de résultats avec les détails de la réservation
+        // Vérifier si la réservation a une DateFin (date de fin)
+        if (data.containsKey('DateFin') && data['DateFin'] != null) {
+          // Si une date de fin existe, rediriger vers la page d'erreur
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => QRResultat(content: responseData),
+              builder: (context) => ReservationPasseePage(content: data),
             ),
           ).then((_) {
-            controller?.resumeCamera(); // Reprend la caméra après navigation
+            controller?.resumeCamera(); // Reprendre la caméra après navigation
           });
         } else {
-          // Si le QR code n'est pas valide (réponse vide)
-          setState(() {
-            isError = true;
-            errorMessage = 'QR Code invalide ou non trouvé dans la base de données.';
+          // Sinon, rediriger vers la page de résultats avec les détails de la réservation
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => QRResultat(content: data),
+            ),
+          ).then((_) {
+            controller?.resumeCamera(); // Reprendre la caméra après navigation
           });
         }
       } else {
-        // Si l'API renvoie une erreur
+        // Si le QR code n'est pas valide (réponse vide)
         setState(() {
           isError = true;
-          errorMessage = 'Erreur serveur: ${response.reasonPhrase}';
+          errorMessage = 'QR Code invalide.';
         });
+        controller?.resumeCamera(); // Reprendre la caméra en cas d'erreur
       }
     } catch (e) {
-      // Si une erreur de connexion se produit
+      // Si une erreur se produit
       setState(() {
         isError = true;
-        errorMessage = 'Erreur de connexion: $e';
+        errorMessage = 'Erreur : $e';
       });
+      controller?.resumeCamera(); // Reprendre la caméra en cas d'erreur
     }
   }
+
+
+
 
   Future<void> _toggleFlash() async {
     if (controller != null) {

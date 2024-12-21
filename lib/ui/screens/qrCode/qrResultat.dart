@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
 
 class QRResultat extends StatelessWidget {
-
-  final String content;
+  final Map<String, dynamic> content;
 
   const QRResultat({Key? key, required this.content}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Réservation'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(16.0),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               decoration: BoxDecoration(
                 color: const Color(0xFFE7F8F0),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(4.0),
@@ -34,79 +43,115 @@ class QRResultat extends StatelessWidget {
                         child: const Icon(
                           Icons.check,
                           color: Colors.white,
-                          size: 16.0,
+                          size: 24.0,
                         ),
                       ),
-                      const SizedBox(width: 8.0),
+                      const SizedBox(width: 12.0),
                       const Text(
-                        "Réservation confirmée :",
+                        'Réservation confirmée',
                         style: TextStyle(
-                          fontSize: 16.0,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: 12.0),
                   const Text(
                     'Voici les informations concernant ce client :',
                     style: TextStyle(fontSize: 14.0),
                   ),
-                  const SizedBox(height: 16.0),
-                  const Text(
-                    'Voici la réservation de XX personnes :',
-                    style: TextStyle(fontSize: 14.0),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30.0), // Augmenté l'espace ici
+            Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(maxWidth: 330),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                      children: [
+                        const TextSpan(text: 'Voici la réservation de '),
+                        TextSpan(
+                          text: '${content['nombre_personnes']}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const TextSpan(text: ' personnes :'),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16.0),
-                  const Row(
+                  const SizedBox(height: 24.0),
+                  Row(
                     children: [
-                      Text(
+                      const Text(
                         'Table : ',
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        'NUMERO',
-                        style: TextStyle(
+                        content['table'],
+                        style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 24.0),
                   const Text(
                     'Critères choisis en cas de table prise :',
                     style: TextStyle(fontSize: 14.0),
                   ),
-                  const SizedBox(height: 8.0),
-                  bulletPoint('Face à la mer'),
-                  bulletPoint('Extérieur'),
-                  const SizedBox(height: 16.0),
-                  const Row(
+                  const SizedBox(height: 12.0),
+                  ...content['criteres'].map<Widget>(
+                        (critere) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 4.0,
+                            height: 4.0,
+                            decoration: const BoxDecoration(
+                              color: Colors.black,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8.0),
+                          Text(critere, style: const TextStyle(fontSize: 14.0)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24.0),
+                  Row(
                     children: [
-                      Text(
+                      const Text(
                         'Date : ',
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        'JJ/MM/AAAA',
-                        style: TextStyle(
+                        content['date'],
+                        style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8.0),
-                  const Row(
+                  const SizedBox(height: 12.0),
+                  Row(
                     children: [
-                      Text(
+                      const Text(
                         'Heure : ',
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        'HH:MM',
-                        style: TextStyle(
+                        content['heure'],
+                        style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
                         ),
@@ -116,7 +161,7 @@ class QRResultat extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16.0),
+            const Spacer(flex: 2),
             Row(
               children: [
                 Expanded(
@@ -147,26 +192,6 @@ class QRResultat extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget bulletPoint(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, bottom: 4.0),
-      child: Row(
-        children: [
-          Container(
-            width: 4.0,
-            height: 4.0,
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 8.0),
-          Text(text, style: const TextStyle(fontSize: 14.0)),
-        ],
       ),
     );
   }
