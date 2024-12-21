@@ -65,7 +65,8 @@ class QRResultat extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 30.0), // Augmenté l'espace ici
+            const SizedBox(height: 30.0),
+
             Container(
               width: double.infinity,
               constraints: const BoxConstraints(maxWidth: 330),

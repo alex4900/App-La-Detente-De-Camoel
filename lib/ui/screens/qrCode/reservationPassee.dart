@@ -6,30 +6,53 @@ class ReservationPasseePage extends StatelessWidget {
 
   const ReservationPasseePage({Key? key, required this.content}) : super(key: key);
 
-  String getTimeDifference(DateTime reservationDateTime) {
-    // Récupérer la date et l'heure actuelles
-    DateTime currentDateTime = DateTime.now();
+  String getTimeDifference(DateTime startDateTime, DateTime endDateTime) {
+    // la fonction difference calcule la différence entre les deux dates
+    Duration difference = endDateTime.difference(startDateTime);
 
-    // Calculer la différence entre les dates
-    Duration difference = currentDateTime.difference(reservationDateTime);
 
-    // Formater la différence en jours, heures, etc.
     if (difference.inDays > 0) {
-      return '${difference.inDays} jours';
+      return '${difference.inDays} jour${difference.inDays > 1 ? 's' : ''}';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} heures';
+      return '${difference.inHours} heure${difference.inHours > 1 ? 's' : ''}';
     } else {
-      return '${difference.inMinutes} minutes';
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''}';
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
-    // Convertir la date et l'heure de la réservation en DateTime
-    DateTime reservationDateTime = DateTime.parse("${content['date']} ${content['heure']}");
 
-    // Obtenir la différence de temps depuis la réservation
-    String timeAgo = getTimeDifference(reservationDateTime);
+    String reservationDateString = "${content['date']} ${content['heure']}";
+    String dateFinString = "${content['DateFin']} ${content['HeureFin']}";
+
+    List<String> reservationParts = reservationDateString.split(' ');
+    List<String> dateParts = reservationParts[0].split('/');
+    List<String> timeParts = reservationParts[1].split(':');
+
+    int resDay = int.parse(dateParts[0]);
+    int resMonth = int.parse(dateParts[1]);
+    int resYear = int.parse(dateParts[2]);
+    int resHour = int.parse(timeParts[0]);
+    int resMinute = int.parse(timeParts[1]);
+
+    DateTime reservationDateTime = DateTime(resYear, resMonth, resDay, resHour, resMinute);
+
+    List<String> dateFinParts = dateFinString.split(' ');
+    List<String> dateFinDateParts = dateFinParts[0].split('/');
+    List<String> dateFinTimeParts = dateFinParts[1].split(':');
+
+    int finDay = int.parse(dateFinDateParts[0]);
+    int finMonth = int.parse(dateFinDateParts[1]);
+    int finYear = int.parse(dateFinDateParts[2]);
+    int finHour = int.parse(dateFinTimeParts[0]);
+    int finMinute = int.parse(dateFinTimeParts[1]);
+
+    DateTime dateFinDateTime = DateTime(finYear, finMonth, finDay, finHour, finMinute);
+
+    String timeAgo = getTimeDifference(dateFinDateTime, reservationDateTime);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +73,7 @@ class ReservationPasseePage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFE0E0), // Couleur d'arrière-plan pour l'erreur
+                color: const Color(0xFFFFE0E0), // couleurs à gerer dans le theme.dart plus tard
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Row(
@@ -81,20 +104,32 @@ class ReservationPasseePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20.0),
-            // Message d'erreur
-            Text(
-              'Ce QR code a déjà été scanné il y a $timeAgo.',
-              style: const TextStyle(fontSize: 16.0, color: Colors.black),
+            // Messages d'erreur
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Le QR code a été scanné il y a $timeAgo.',
+                  style: const TextStyle(fontSize: 16.0, color: Colors.black),
+                ),
+                const SizedBox(height: 10.0),
+                Text(
+                  'Cette réservation a été validée le ${content['DateFin']} à ${content['HeureFin']}.',
+                  style: const TextStyle(fontSize: 16.0, color: Colors.black),
+                ),
+              ],
             ),
+
             const SizedBox(height: 30.0),
-            // Boutons Annuler et Continuer
+
+            // les deux boutons
+
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      // Logique pour annuler
-                      Navigator.pop(context); // Retourner à l'écran précédent
+                      Navigator.pop(context);
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -107,11 +142,11 @@ class ReservationPasseePage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Logique pour continuer
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => QRResultat(content: content), // Aller à la page de détails de réservation
+                          builder: (context) => QRResultat(content: content), // on va, si c'est ok pour le
                         ),
                       );
                     },

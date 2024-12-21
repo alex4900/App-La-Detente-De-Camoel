@@ -17,9 +17,9 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   String? scannedText;
-  bool isFlashOn = false; // Indique l'état du flash, pour l'icône
-  bool isError = false; // Indique si le QR code est invalide
-  String errorMessage = ''; // Message d'erreur à afficher
+  bool isFlashOn = false;
+  bool isError = false;
+  String errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +29,13 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       ),
       body: Stack(
         children: [
-          // Vue caméra
           QRView(
             key: qrKey,
             onQRViewCreated: _onQRViewCreated,
           ),
-          // Carré de guidage au centre
+
+          // Le carré vert (pour l'instant) au centre
+          // Un jour peut être je le changerait en un beau truc
           Center(
             child: Container(
               width: 150,
@@ -44,7 +45,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               ),
             ),
           ),
-          // Affichage de l'erreur si le QR code est invalide
+
           if (isError)
             Align(
               alignment: Alignment.bottomCenter,
@@ -58,7 +59,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                 ),
               ),
             ),
-          // Icône de flash en bas à droite
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -81,42 +81,36 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) async {
-      // Pause la caméra pendant la vérification
       controller.pauseCamera();
 
       setState(() {
         scannedText = scanData.code;
       });
 
-      // Vérifier si le QR code correspond à une réservation
       await _validateQRCode(scannedText ?? "");
     });
   }
 
   Future<void> _validateQRCode(String qrCode) async {
     try {
-      // Appel à la fonction utilitaire pour vérifier la réservation
       final Map<String, dynamic> data = await checkReservation(qrCode);
 
-      // Si les données sont valides (non vides)
       if (data.isNotEmpty) {
         setState(() {
           isError = false;
         });
-
-        // Vérifier si la réservation a une DateFin (date de fin)
+         // Si c'est une réservation déjà validée :
         if (data.containsKey('DateFin') && data['DateFin'] != null) {
-          // Si une date de fin existe, rediriger vers la page d'erreur
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ReservationPasseePage(content: data),
             ),
           ).then((_) {
-            controller?.resumeCamera(); // Reprendre la caméra après navigation
+            controller?.resumeCamera();
           });
         } else {
-          // Sinon, rediriger vers la page de résultats avec les détails de la réservation
+          // Sinon, on redirige vers la page de résultats avec les détails de la réservation
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -127,12 +121,12 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           });
         }
       } else {
-        // Si le QR code n'est pas valide (réponse vide)
+        // Si le QR code n'est pas valide (réponse de l'api vide)
         setState(() {
           isError = true;
           errorMessage = 'QR Code invalide.';
         });
-        controller?.resumeCamera(); // Reprendre la caméra en cas d'erreur
+        controller?.resumeCamera(); // Oral : On remet la camera en cas d'erreur
       }
     } catch (e) {
       // Si une erreur se produit
@@ -140,7 +134,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         isError = true;
         errorMessage = 'Erreur : $e';
       });
-      controller?.resumeCamera(); // Reprendre la caméra en cas d'erreur
+      controller?.resumeCamera();
     }
   }
 
@@ -148,11 +142,14 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
 
   Future<void> _toggleFlash() async {
+
+    // Oral : On ajoute un flashlight en cas de manque de lisibilité sur une feuille
+
     if (controller != null) {
       await controller?.toggleFlash();
       final flashStatus = await controller?.getFlashStatus() ?? false;
       setState(() {
-        isFlashOn = flashStatus; // Met à jour l'état du flash
+        isFlashOn = flashStatus;
       });
     }
   }
