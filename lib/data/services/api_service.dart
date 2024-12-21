@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../utils/config.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.147.10/api";
 
   static Future<http.Response> login(String email, String password) async {
-    var url = Uri.parse("$baseUrl/login");
+    var url = Uri.parse("${AppConfig.baseUrl}/login");
     var response = await http.post(
       url,
       headers: {
