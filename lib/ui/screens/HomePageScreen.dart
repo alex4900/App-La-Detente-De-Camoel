@@ -1,15 +1,21 @@
 import 'package:android_detente_camoel/ui/screens/connexion/connexion.dart';
 import 'package:flutter/material.dart';
 
+// Connexion
 import 'connexion/connexion.dart';
+
+// QR Code
 import 'home/page1.dart';
+import 'qrCode/qrScanner.dart';
+
+//
 import 'home/page2.dart';
 import 'home/page3.dart';
 import 'home/page4.dart';
 
 class HomePageScreen extends StatefulWidget {
   final int initialIndex;
-  const HomePageScreen({Key? key, this.initialIndex = 0}) : super(key: key);
+  const HomePageScreen({Key? key, this.initialIndex = 1}) : super(key: key);
 
   @override
   createState() => _HomePageScreenState();
@@ -27,7 +33,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   // Page login ajoutée au début de la liste (index 0)
   final List<Widget> _children = const <Widget>[
     Connexion(),
-    Page1(),
+    QRScannerScreen(),
     Page2(),
     Page3(),
     Page4(),

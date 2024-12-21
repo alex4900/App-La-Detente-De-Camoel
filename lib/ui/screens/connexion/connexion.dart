@@ -14,7 +14,7 @@ class Connexion extends StatefulWidget {
 class _ConnexionState extends State<Connexion> {
   final TextEditingController emailInput = TextEditingController();
   final TextEditingController passwordInput = TextEditingController();
-  bool isLoading = false; // Ajout d'un état de chargement
+  bool isLoading = false;
 
   void login() async {
     setState(() {
@@ -26,11 +26,9 @@ class _ConnexionState extends State<Connexion> {
 
       switch (response.statusCode) {
         case 200:
-        // Succès - L'utilisateur est authentifié
           final responseData = jsonDecode(response.body);
           String token = responseData['access_token'];
 
-          // Redirection vers la page d'accueil
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -86,13 +84,13 @@ class _ConnexionState extends State<Connexion> {
           break;
 
         default:
-        // Erreurs inconnues
+        // yep
           showErrorDialog('Erreur inattendue : ${response.statusCode}');
           break;
       }
 
     } catch (e) {
-      showErrorDialog('Une erreur est survenue. Veuillez réessayer.');
+      showErrorDialog("T'as pas activé le VPN boloss !");
     } finally {
       setState(() {
         isLoading = false;
