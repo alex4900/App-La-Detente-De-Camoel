@@ -92,7 +92,7 @@ class _ConnexionState extends State<Connexion> {
       }
 
     } catch (e) {
-      showErrorDialog('Une erreur est survenue. Veuillez réessayer.');
+      showErrorDialog("T'as pas activé le VPN boloss !");
     } finally {
       setState(() {
         isLoading = false;
