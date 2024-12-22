@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../../../data/services/api_service.dart';
+import '../../../data/models/Auth.dart';
 import '../HomePageScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Pour garder le token d'authentification
 
 class Connexion extends StatefulWidget {
   const Connexion({Key? key}) : super(key: key);
@@ -22,13 +23,20 @@ class _ConnexionState extends State<Connexion> {
     });
 
     try {
-      final response = await ApiService.login(emailInput.text, passwordInput.text);
+      final response = await AuthService.login(emailInput.text, passwordInput.text);
 
       switch (response.statusCode) {
         case 200:
           final responseData = jsonDecode(response.body);
+
+          // Stocker le token dans SharedPreferences
           String token = responseData['access_token'];
 
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+
+
+          // Puis changer de page
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

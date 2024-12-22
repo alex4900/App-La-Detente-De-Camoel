@@ -85,6 +85,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
       setState(() {
         scannedText = scanData.code;
+        scannedText = scanData.code;
       });
 
       await _validateQRCode(scannedText ?? "");
