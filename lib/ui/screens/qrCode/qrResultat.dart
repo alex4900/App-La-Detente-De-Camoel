@@ -82,7 +82,7 @@ class QRResultat extends StatelessWidget {
                           text: '${content['nombre_personnes']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        const TextSpan(text: ' personnes :'),
+                        const TextSpan(text: ' :'),
                       ],
                     ),
                   ),
@@ -90,7 +90,7 @@ class QRResultat extends StatelessWidget {
                   Row(
                     children: [
                       const Text(
-                        'Table : ',
+                        'Table numéro : ',
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
