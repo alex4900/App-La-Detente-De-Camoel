@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'changerTable.dart';
 
 class QRResultat extends StatelessWidget {
   final Map<String, dynamic> content;
@@ -167,7 +168,15 @@ class QRResultat extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChangerTable(),
+                        ),
+                      );
+
+                    },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       side: const BorderSide(color: Colors.blue),

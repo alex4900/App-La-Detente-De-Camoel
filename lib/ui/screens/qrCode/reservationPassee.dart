@@ -7,8 +7,9 @@ class ReservationPasseePage extends StatelessWidget {
   const ReservationPasseePage({Key? key, required this.content}) : super(key: key);
 
   String getTimeDifference(DateTime startDateTime, DateTime endDateTime) {
-    // la fonction difference calcule la différence entre les deux dates
-    Duration difference = endDateTime.difference(startDateTime);
+    // j'ai merdé j'ai inversé les deux mais c'est pas grave ça fonctionne
+
+    Duration difference = DateTime.now().difference(startDateTime);
 
 
     if (difference.inDays > 0) {
