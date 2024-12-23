@@ -103,31 +103,8 @@ class QRResultat extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24.0),
-                  const Text(
-                    'Critères choisis en cas de table prise :',
-                    style: TextStyle(fontSize: 14.0),
-                  ),
-                  const SizedBox(height: 12.0),
-                  ...content['criteres'].map<Widget>(
-                        (critere) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 4.0,
-                            height: 4.0,
-                            decoration: const BoxDecoration(
-                              color: Colors.black,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8.0),
-                          Text(critere, style: const TextStyle(fontSize: 14.0)),
-                        ],
-                      ),
-                    ),
-                  ),
+
+
                   const SizedBox(height: 24.0),
                   Row(
                     children: [
@@ -160,6 +137,23 @@ class QRResultat extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    'Critères choisis en cas de table prise :',
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  const SizedBox(height: 12),
+
+                  Text(
+                    content['commentaire'],
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+
+                    ),
+                  ),
+
                 ],
               ),
             ),
