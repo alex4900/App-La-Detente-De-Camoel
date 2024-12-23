@@ -107,9 +107,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             MaterialPageRoute(
               builder: (context) => ReservationPasseePage(content: data),
             ),
-          ).then((_) {
-            controller?.resumeCamera();
-          });
+          );
         } else {
           // Sinon, on redirige vers la page de résultats avec les détails de la réservation
           Navigator.push(
@@ -117,9 +115,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             MaterialPageRoute(
               builder: (context) => QRResultat(content: data),
             ),
-          ).then((_) {
-            controller?.resumeCamera(); // Reprendre la caméra après navigation
-          });
+          );
         }
       } else {
         // Si le QR code n'est pas valide (réponse de l'api vide)
