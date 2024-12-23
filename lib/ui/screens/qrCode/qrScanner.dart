@@ -100,7 +100,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         setState(() {
           isError = false;
         });
-         // Si c'est une réservation déjà validée :
+         // Si c.dart'est une réservation déjà validée :
         if (data.containsKey('DateFin') && data['DateFin'] != null) {
           Navigator.push(
             context,

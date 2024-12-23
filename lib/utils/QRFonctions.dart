@@ -45,3 +45,40 @@ Future<Map<String, dynamic>> checkReservation(String qrCode) async {
   }
 }
 
+Future<List<dynamic>> recupererTables() async {
+
+  Map<String, dynamic> donnees = {};
+  // On se connecte
+
+  var headers = {
+    'Accept': 'application/json',
+  };
+
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+
+  if (token == null) {
+    return ["unauthenticated"];
+  }
+
+  headers['Authorization'] = 'Bearer $token';
+
+  String url = '${AppConfig.baseUrl}/tables';
+
+
+  var request = http.Request('GET', Uri.parse(url));
+  request.body = '''''';
+  request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      // Décoder la réponse JSON
+      String responseData = await response.stream.bytesToString();
+
+      return jsonDecode(responseData);
+    } else {
+      throw Exception('Erreur serveur: ${response.reasonPhrase}');
+    }
+}
+

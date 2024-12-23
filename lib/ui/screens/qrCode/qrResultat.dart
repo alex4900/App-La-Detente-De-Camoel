@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'changerTable.dart';
+import 'package:android_detente_camoel/utils/QRFonctions.dart';
 
 class QRResultat extends StatelessWidget {
   final Map<String, dynamic> content;
@@ -162,15 +163,15 @@ class QRResultat extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
+                    onPressed: () async { // 10 ans pour comprendre le async
+                      final contenuTables = await recupererInfoTables();
+                      Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ChangerTable(),
+                          builder: (context) => ChangerTable(content: contenuTables, commentaires: content['commentaire']),
                         ),
                       );
-
                     },
+
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       side: const BorderSide(color: Colors.blue),
@@ -199,4 +200,14 @@ class QRResultat extends StatelessWidget {
       ),
     );
   }
+
+  Future<List<dynamic>> recupererInfoTables() async {
+
+    // Oral : On ajoute un flashlight en cas de manque de lisibilité sur une feuille
+    List<dynamic> infoTables = await recupererTables();
+    return infoTables;
+
+  }
 }
+
+

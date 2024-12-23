@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
 class ChangerTable extends StatefulWidget {
-  const ChangerTable({super.key});
+
+  final List<dynamic> content;
+  final String commentaires;
+  const ChangerTable({super.key, required this.content, required this.commentaires}); //Merci StackOverFlow, merci ça ne se voit pas ici.
 
   @override
   State<ChangerTable> createState() => _ChangerTableState();
 }
 
 class _ChangerTableState extends State<ChangerTable> {
+  int? idTableSelectionnee;
+   // on récupere les infos des tables, #jenaimarre
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,15 +48,11 @@ class _ChangerTableState extends State<ChangerTable> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24.0),
+                const SizedBox(height: 12.0),
                 Row(
                   children: [
-                    const Text(
-                      'Table numéro : ',
-                      style: TextStyle(fontSize: 14.0),
-                    ),
                     Text(
-                      "content['table']",
+                      widget.commentaires, // encore merci stackOverflow
                       style: const TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.bold,
@@ -60,26 +62,56 @@ class _ChangerTableState extends State<ChangerTable> {
                 ),
                 const SizedBox(height: 24.0),
                 const Text(
-                  'Critères choisis en cas de table prise :',
+                  'Critères choisis en cas de table prise : ',
                   style: TextStyle(fontSize: 14.0),
                 ),
+
+
 
               ],
             ),
           ),
-          const Spacer(flex: 2),
+            const SizedBox(height: 24.0),
+
+            Expanded(
+              child: ListView(
+                children: widget.content.map<Widget>((table) {
+                  final idTable = table['IDTABLE'];
+                  final isDisponible = table['ESTDISPO'];
+
+                  return RadioListTile<int>(
+                    title: Text(
+                      isDisponible
+                          ? 'Table $idTable'
+                          : 'Table $idTable (Pas disponible)',
+                      style: TextStyle(
+                        color: isDisponible ? Colors.black : Colors.grey,
+                      ),
+                    ),
+                    value: idTable,
+                    groupValue: idTableSelectionnee,
+                    onChanged: isDisponible
+                        ? (value) {
+                      setState(() {
+                        idTableSelectionnee = value;
+                      });
+                    }
+                        : null,
+                  );
+                }).toList(),
+              ),
+            ),
+
           Row(
             children: [
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChangerTable(),
-                      ),
-                    );
-
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Table $idTableSelectionnee sélectionnée !'),
+                        ),
+                      );
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
