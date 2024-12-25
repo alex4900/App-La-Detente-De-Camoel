@@ -93,7 +93,7 @@ class _QRResultatState extends State<QRResultat> {
                       children: [
                         const TextSpan(text: 'Voici la réservation de '),
                         TextSpan(
-                          text: '${widget.content['nombre_personnes']}',
+                          text: '${currentContent['nombre_personnes']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const TextSpan(text: ' :'),
@@ -108,7 +108,7 @@ class _QRResultatState extends State<QRResultat> {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        widget.content['table'],
+                        currentContent['table'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -126,7 +126,7 @@ class _QRResultatState extends State<QRResultat> {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        widget.content['date'],
+                        currentContent['date'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class _QRResultatState extends State<QRResultat> {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        widget.content['heure'],
+                        currentContent['heure'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -159,7 +159,7 @@ class _QRResultatState extends State<QRResultat> {
                   const SizedBox(height: 12),
 
                   Text(
-                    widget.content['commentaire'],
+                    currentContent['commentaire'],
                     style: const TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
