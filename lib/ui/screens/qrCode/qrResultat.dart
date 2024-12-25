@@ -167,7 +167,12 @@ class QRResultat extends StatelessWidget {
                       final contenuTables = await recupererInfoTables();
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ChangerTable(content: contenuTables, commentaires: content['commentaire']),
+                          builder: (context) => ChangerTable(
+                            content: contenuTables,
+                            commentaires: content['commentaire'],
+                            idTable: content['table'],
+                            idReservation: content['id_reservation'],
+                          ),
                         ),
                       );
                     },

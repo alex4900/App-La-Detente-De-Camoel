@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:android_detente_camoel/utils/QRFonctions.dart';
 
 class ChangerTable extends StatefulWidget {
 
   final List<dynamic> content;
   final String commentaires;
-  const ChangerTable({super.key, required this.content, required this.commentaires}); //Merci StackOverFlow, merci ça ne se voit pas ici.
+  final String idTable;
+  final String idReservation;
+  const ChangerTable({super.key,
+    required this.content,
+    required this.commentaires,
+    required this.idTable,
+    required this.idReservation,
+  }); //Merci StackOverFlow, merci ça ne se voit pas ici.
 
   @override
   State<ChangerTable> createState() => _ChangerTableState();
@@ -32,7 +40,7 @@ class _ChangerTableState extends State<ChangerTable> {
           child: Column(
           children: [
 
-          const SizedBox(height: 30.0),
+          const SizedBox(height: 12.0),
 
           Container(
             width: double.infinity,
@@ -90,13 +98,12 @@ class _ChangerTableState extends State<ChangerTable> {
                     ),
                     value: idTable,
                     groupValue: idTableSelectionnee,
-                    onChanged: isDisponible
-                        ? (value) {
+                    selected: idTable.toString() == widget.idTable,
+                    onChanged: (value) {
                       setState(() {
                         idTableSelectionnee = value;
                       });
-                    }
-                        : null,
+                    },
                   );
                 }).toList(),
               ),
@@ -106,12 +113,52 @@ class _ChangerTableState extends State<ChangerTable> {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    if (idTableSelectionnee == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Table $idTableSelectionnee sélectionnée !'),
+                        const SnackBar(
+                          content: Text('Veuillez sélectionner une table.'),
                         ),
                       );
+                      return;
+                    }
+
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      // En attendant la réponse du saint serveur
+                      const SnackBar(
+                        content: Text('Changement de table en cours...'),
+                      ),
+                    );
+
+                    try {
+                      final result = await changerTables(widget.idReservation, idTableSelectionnee);
+
+                      if (result[1] != -1) { // Si il n'y a pas d'erreur
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Table changée avec succès ! Nouvelle table : ${result[1]}'),
+                          ),
+                        );
+
+                        // Puis, on revient en arrière
+                        Future.delayed(const Duration(seconds: 1), () {
+                          Navigator.of(context).pop();
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erreur : ${result[0]}'),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Une erreur est survenue : $e'),
+                        ),
+                      );
+                    }
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -120,6 +167,12 @@ class _ChangerTableState extends State<ChangerTable> {
                   child: const Text('Changer de table'),
                 ),
               ),
+
+              /*
+                * TODO : mettre à jour la table sur la reservation
+                * Ca ne met pas encore à jour l'application quand on revient en arrière.
+              */
+
               const SizedBox(width: 16.0),
               Expanded(
                 child: ElevatedButton(
@@ -141,4 +194,11 @@ class _ChangerTableState extends State<ChangerTable> {
       ),
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    idTableSelectionnee = int.tryParse(widget.idTable);
+  }
+
 }

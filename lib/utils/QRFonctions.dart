@@ -1,4 +1,5 @@
 import 'dart:convert'; // Nécessaire pour la conversion JSON
+import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,5 +81,46 @@ Future<List<dynamic>> recupererTables() async {
     } else {
       throw Exception('Erreur serveur: ${response.reasonPhrase}');
     }
+}
+
+Future<List<dynamic>> changerTables(String idReservation, int? idTableChangee) async {
+
+  List<dynamic> donnees = [];
+  /* Deux cases dans ce tableau :
+    * Un string correspondant à l'erreur
+    * Un int avec la valeur modifiée de la table si opérations réussis
+  */
+  var headers = {
+    'Accept': 'application/json',
+  };
+
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+
+  if (token == null) {
+    return ["Vous n'êtes pas connecté !", -1];
+  }
+
+  headers['Authorization'] = 'Bearer $token';
+
+  String url = '${AppConfig.baseUrl}/reservation/changerTable/$idReservation/$idTableChangee';
+
+
+  var request = http.Request('PATCH', Uri.parse(url));
+  request.body = '''''';
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+  String responseData = await response.stream.bytesToString();
+  if (response.statusCode == 200) {
+    // Décoder la réponse JSON
+
+    return ["", jsonDecode(responseData)['reservation']['IDTABLE']];
+  } else {
+    var message = jsonDecode(responseData);
+    return [
+      message['message'], -1
+    ];
+  }
 }
 
