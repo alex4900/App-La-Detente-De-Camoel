@@ -2,10 +2,22 @@ import 'package:flutter/material.dart';
 import 'changerTable.dart';
 import 'package:android_detente_camoel/utils/QRFonctions.dart';
 
-class QRResultat extends StatelessWidget {
+class QRResultat extends StatefulWidget {
   final Map<String, dynamic> content;
 
   const QRResultat({Key? key, required this.content}) : super(key: key);
+
+  State<QRResultat> createState() => _QRResultatState();
+}
+
+class _QRResultatState extends State<QRResultat> {
+  late Map<String, dynamic> currentContent;
+
+  @override
+  void initState() {
+    super.initState();
+    currentContent = Map<String, dynamic>.from(widget.content);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +93,7 @@ class QRResultat extends StatelessWidget {
                       children: [
                         const TextSpan(text: 'Voici la réservation de '),
                         TextSpan(
-                          text: '${content['nombre_personnes']}',
+                          text: '${widget.content['nombre_personnes']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const TextSpan(text: ' :'),
@@ -96,7 +108,7 @@ class QRResultat extends StatelessWidget {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        content['table'],
+                        widget.content['table'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -114,7 +126,7 @@ class QRResultat extends StatelessWidget {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        content['date'],
+                        widget.content['date'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -130,7 +142,7 @@ class QRResultat extends StatelessWidget {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        content['heure'],
+                        widget.content['heure'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -147,7 +159,7 @@ class QRResultat extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   Text(
-                    content['commentaire'],
+                    widget.content['commentaire'],
                     style: const TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
@@ -163,20 +175,25 @@ class QRResultat extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () async { // 10 ans pour comprendre le async
+                    onPressed: () async {
                       final contenuTables = await recupererInfoTables();
-                      Navigator.of(context).push(
+                      final result = await Navigator.of(context).push<Map<String, dynamic>>(
                         MaterialPageRoute(
                           builder: (context) => ChangerTable(
                             content: contenuTables,
-                            commentaires: content['commentaire'],
-                            idTable: content['table'],
-                            idReservation: content['id_reservation'],
+                            commentaires: currentContent['commentaire'],
+                            idTable: currentContent['table'],
+                            idReservation: currentContent['id_reservation'],
                           ),
                         ),
                       );
-                    },
 
+                      if (result != null) {
+                        setState(() {
+                          currentContent['table'] = result['newTable'].toString();
+                        });
+                      }
+                    },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       side: const BorderSide(color: Colors.blue),

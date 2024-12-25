@@ -143,7 +143,9 @@ class _ChangerTableState extends State<ChangerTable> {
 
                         // Puis, on revient en arrière
                         Future.delayed(const Duration(seconds: 1), () {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop({
+                            'newTable': result[1]
+                          });
                         });
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
