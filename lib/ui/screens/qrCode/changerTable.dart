@@ -112,6 +112,21 @@ class _ChangerTableState extends State<ChangerTable> {
           Row(
             children: [
               Expanded(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    side: const BorderSide(color: Colors.blue),
+                  ),
+                  child: const Text(
+                    'Annuler',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16.0),
+
+              Expanded(
                 child: OutlinedButton(
                   onPressed: () async {
                     if (idTableSelectionnee == null) {
@@ -137,7 +152,7 @@ class _ChangerTableState extends State<ChangerTable> {
                       if (result[1] != -1) { // Si il n'y a pas d'erreur
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Table changée avec succès ! Nouvelle table : ${result[1]}'),
+                            content: Text('Table changée avec succès !'),
                           ),
                         );
 
@@ -162,29 +177,14 @@ class _ChangerTableState extends State<ChangerTable> {
                       );
                     }
                   },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    side: const BorderSide(color: Colors.blue),
-                  ),
-                  child: const Text('Changer de table'),
-                ),
-              ),
 
-              /*
-                * TODO : mettre à jour la table sur la reservation
-                * Ca ne met pas encore à jour l'application quand on revient en arrière.
-              */
-
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     backgroundColor: Colors.blue,
                   ),
+
                   child: const Text(
-                    'Prendre sa commande',
+                    'Changer de table',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

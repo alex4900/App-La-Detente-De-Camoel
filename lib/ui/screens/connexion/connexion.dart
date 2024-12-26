@@ -98,7 +98,7 @@ class _ConnexionState extends State<Connexion> {
       }
 
     } catch (e) {
-      showErrorDialog("T'as pas activé le VPN boloss !");
+      showErrorDialog("Connexion à la base de données impossible, essayer d'activer le VPN ou de lancez le serveur correctement.");
     } finally {
       setState(() {
         isLoading = false;
