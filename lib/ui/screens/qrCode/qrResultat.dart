@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'changerTable.dart';
+import 'package:android_detente_camoel/utils/QRFonctions.dart';
 
-class QRResultat extends StatelessWidget {
+class QRResultat extends StatefulWidget {
   final Map<String, dynamic> content;
 
   const QRResultat({Key? key, required this.content}) : super(key: key);
+
+  State<QRResultat> createState() => _QRResultatState();
+}
+
+class _QRResultatState extends State<QRResultat> {
+  late Map<String, dynamic> currentContent;
+
+  @override
+  void initState() {
+    super.initState();
+    currentContent = Map<String, dynamic>.from(widget.content);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,10 +93,10 @@ class QRResultat extends StatelessWidget {
                       children: [
                         const TextSpan(text: 'Voici la réservation de '),
                         TextSpan(
-                          text: '${content['nombre_personnes']}',
+                          text: '${currentContent['nombre_personnes']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        const TextSpan(text: ' personnes :'),
+                        const TextSpan(text: ' :'),
                       ],
                     ),
                   ),
@@ -90,11 +104,11 @@ class QRResultat extends StatelessWidget {
                   Row(
                     children: [
                       const Text(
-                        'Table : ',
+                        'Table numéro : ',
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        content['table'],
+                        currentContent['table'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -102,31 +116,8 @@ class QRResultat extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24.0),
-                  const Text(
-                    'Critères choisis en cas de table prise :',
-                    style: TextStyle(fontSize: 14.0),
-                  ),
-                  const SizedBox(height: 12.0),
-                  ...content['criteres'].map<Widget>(
-                        (critere) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 4.0,
-                            height: 4.0,
-                            decoration: const BoxDecoration(
-                              color: Colors.black,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8.0),
-                          Text(critere, style: const TextStyle(fontSize: 14.0)),
-                        ],
-                      ),
-                    ),
-                  ),
+
+
                   const SizedBox(height: 24.0),
                   Row(
                     children: [
@@ -135,7 +126,7 @@ class QRResultat extends StatelessWidget {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        content['date'],
+                        currentContent['date'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -151,7 +142,7 @@ class QRResultat extends StatelessWidget {
                         style: TextStyle(fontSize: 14.0),
                       ),
                       Text(
-                        content['heure'],
+                        currentContent['heure'],
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
@@ -159,6 +150,23 @@ class QRResultat extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    'Critères choisis en cas de table prise :',
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  const SizedBox(height: 12),
+
+                  Text(
+                    currentContent['commentaire'],
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+
+                    ),
+                  ),
+
                 ],
               ),
             ),
@@ -167,7 +175,25 @@ class QRResultat extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final contenuTables = await recupererInfoTables();
+                      final result = await Navigator.of(context).push<Map<String, dynamic>>(
+                        MaterialPageRoute(
+                          builder: (context) => ChangerTable(
+                            content: contenuTables,
+                            commentaires: currentContent['commentaire'],
+                            idTable: currentContent['table'],
+                            idReservation: currentContent['id_reservation'],
+                          ),
+                        ),
+                      );
+
+                      if (result != null) {
+                        setState(() {
+                          currentContent['table'] = result['newTable'].toString();
+                        });
+                      }
+                    },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       side: const BorderSide(color: Colors.blue),
@@ -196,4 +222,14 @@ class QRResultat extends StatelessWidget {
       ),
     );
   }
+
+  Future<List<dynamic>> recupererInfoTables() async {
+
+    // Oral : On ajoute un flashlight en cas de manque de lisibilité sur une feuille
+    List<dynamic> infoTables = await recupererTables();
+    return infoTables;
+
+  }
 }
+
+

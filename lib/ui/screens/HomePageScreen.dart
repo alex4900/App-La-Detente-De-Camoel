@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'connexion/connexion.dart';
 
 // QR Code
-import 'home/page1.dart';
 import 'qrCode/qrScanner.dart';
 
 //
@@ -15,7 +14,7 @@ import 'home/page4.dart';
 
 class HomePageScreen extends StatefulWidget {
   final int initialIndex;
-  const HomePageScreen({Key? key, this.initialIndex = 1}) : super(key: key);
+  const HomePageScreen({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   createState() => _HomePageScreenState();
@@ -61,11 +60,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
         currentIndex: _currentIndex - 1,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: Icon(Icons.qr_code),
             label: 'Scan QR',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_shopping_cart),
+            icon: Icon(Icons.accessible_forward_sharp),
             label: 'Commander',
           ),
           BottomNavigationBarItem(
