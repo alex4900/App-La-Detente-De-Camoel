@@ -6,7 +6,8 @@ class ChangerTable extends StatefulWidget {
   final List<dynamic> content;
   final String commentaires;
   final String idTable;
-  final String idReservation;
+  final String? idReservation;
+
   const ChangerTable({super.key,
     required this.content,
     required this.commentaires,
@@ -147,7 +148,7 @@ class _ChangerTableState extends State<ChangerTable> {
                     );
 
                     try {
-                      final result = await changerTables(widget.idReservation, idTableSelectionnee);
+                      final result = await changerTables(widget.idReservation!, idTableSelectionnee);
 
                       if (result[1] != -1) { // Si il n'y a pas d'erreur
                         ScaffoldMessenger.of(context).showSnackBar(

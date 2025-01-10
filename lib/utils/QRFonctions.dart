@@ -1,5 +1,4 @@
 import 'dart:convert'; // Nécessaire pour la conversion JSON
-import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +23,8 @@ Future<Map<String, dynamic>> checkReservation(String qrCode) async {
   headers['Authorization'] = 'Bearer $token';
 
   String url = '${AppConfig.baseUrl}/reservation/qrCode/?QrCode=$qrCode';
-
+  print("coucuo " + url);
+  print(token);
   var request = http.Request('GET', Uri.parse(url));
   request.body = '''''';
   request.headers.addAll(headers);
@@ -35,7 +35,9 @@ Future<Map<String, dynamic>> checkReservation(String qrCode) async {
     if (response.statusCode == 200) {
       // Décoder la réponse JSON
       String responseData = await response.stream.bytesToString();
+      print(responseData);
       return jsonDecode(responseData);
+
     } else if (response.statusCode == 404) {
       return {};
     } else {
