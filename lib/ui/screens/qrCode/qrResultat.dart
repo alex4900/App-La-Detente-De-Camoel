@@ -177,6 +177,8 @@ class _QRResultatState extends State<QRResultat> {
                   child: OutlinedButton(
                     onPressed: () async {
                       final contenuTables = await recupererInfoTables();
+
+
                       final result = await Navigator.of(context).push<Map<String, dynamic>>(
                         MaterialPageRoute(
                           builder: (context) => ChangerTable(
@@ -227,6 +229,7 @@ class _QRResultatState extends State<QRResultat> {
 
     // Oral : On ajoute un flashlight en cas de manque de lisibilité sur une feuille
     List<dynamic> infoTables = await recupererTables();
+    print(infoTables);
     return infoTables;
 
   }
