@@ -64,7 +64,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
             label: 'Scan QR',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.accessible_forward_sharp),
+            icon: Icon(Icons.add_shopping_cart),
             label: 'Commander',
           ),
           BottomNavigationBarItem(
