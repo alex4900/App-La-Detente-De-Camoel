@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class ChatPage extends StatefulWidget {
   @override
@@ -8,11 +6,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  List<types.Message> _messages = [];
-
-  // Définir deux utilisateurs : un serveur et le cuisinier
-  final types.User _server = types.User(id: 'server1', firstName: 'Serveur');
-  final types.User _chef = types.User(id: 'chef1', firstName: 'Cuisinier');
+  List<dynamic> _messages = [];
 
   @override
   void initState() {
@@ -20,28 +14,25 @@ class _ChatPageState extends State<ChatPage> {
     _loadMessages();
   }
 
-  void _loadMessages() {
-    final textMessage = types.TextMessage(
-      author: _chef, // Cuisinier en tant qu'auteur
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: 'msg1',
-      text: 'Bienvenue dans le chat avec les cuisines !',
-    );
+  void _loadMessages() async {
+    List<dynamic> messages = await recupererMessagesEnregistres();
     setState(() {
-      _messages = [textMessage];
+      _messages = messages;
     });
   }
 
-  void _handleSendPressed(types.PartialText message) {
-    final textMessage = types.TextMessage(
-      author: _server, // Le serveur envoie le message
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: DateTime.now().toString(),
-      text: message.text,
-    );
-    setState(() {
-      _messages.insert(0, textMessage);
-    });
+  void _fetchMessages() async {
+    try {
+      List<dynamic> messages = await recupererMessages();
+      await enregistrerMessages(messages);
+      setState(() {
+        _messages = messages;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la récupération des messages: $e')),
+      );
+    }
   }
 
   @override
@@ -49,26 +40,37 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat avec les cuisines'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _fetchMessages,
+          ),
+        ],
       ),
-      body: Chat(
-        messages: _messages,
-        onSendPressed: _handleSendPressed,
-        user: _server,
-        theme: DefaultChatTheme(
-          primaryColor: Color(0xFFA2C4DD),
-          secondaryColor: Color(0xFF97EFCE),
-          sentMessageBodyTextStyle: TextStyle(
-            color: Colors.black
-          ),
-          receivedMessageBodyTextStyle: TextStyle(
-            color: Colors.black,
-          ),
-          inputBackgroundColor: Colors.grey[100]!,
-          inputTextColor: Colors.grey[800]!,
-
-          inputBorderRadius: BorderRadius.circular(20),
-        ),
+      body: ListView.builder(
+        itemCount: _messages.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_messages[index]['text']),
+          );
+        },
       ),
     );
+  }
+}
+
+
+Future<void> enregistrerMessages(List<dynamic> messages) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('messages', jsonEncode(messages));
+}
+
+Future<List<dynamic>> recupererMessagesEnregistres() async {
+  final prefs = await SharedPreferences.getInstance();
+  String? messagesString = prefs.getString('messages');
+  if (messagesString != null) {
+    return jsonDecode(messagesString);
+  } else {
+    return [];
   }
 }
