@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo + API',
+      title: 'La Detente De Camoel',
       theme: myTheme,
       home: HomePageScreen(),
     );

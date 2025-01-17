@@ -30,7 +30,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   }
 
   // Page login ajoutée au début de la liste (index 0)
-  final List<Widget> _children = const <Widget>[
+  final List<Widget> _children = <Widget>[
     Connexion(),
     QRScannerScreen(),
     Page2(),
