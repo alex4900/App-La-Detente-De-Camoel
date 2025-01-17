@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'La Detente De Camoel',
+      debugShowCheckedModeBanner: false, 
       theme: myTheme,
       home: HomePageScreen(),
     );

@@ -6,6 +6,9 @@ import '../../../utils/config.dart';
 import 'page3.dart';
 
 class Page2 extends StatefulWidget {
+  static Map<String, Map<String, dynamic  >> savedItems = {};
+  static double savedTotal = 0.0;
+  static String savedSection = 'Boissons';
   const Page2({Key? key}) : super(key: key);
 
   @override
@@ -24,13 +27,17 @@ class _Page2State extends State<Page2> {
     'Plats': 2,
     'Desserts': 3,
     'Boissons': 4,
-    'Fromages': 5,
-    'Alcools': 6,
+    'Fromages': 6,
+    'Alcools': 7,
   };
 
   @override
   void initState() {
     super.initState();
+    // Restore saved state
+    selectedItems = Map.from(Page2.savedItems);
+    totalAmount = Page2.savedTotal;
+    currentSection = Page2.savedSection;
     fetchAllItems();
   }
 
@@ -75,66 +82,82 @@ class _Page2State extends State<Page2> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Votre commande',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: selectedItems.length,
-                  itemBuilder: (context, index) {
-                    final item = selectedItems.values.elementAt(index);
-                    return ListTile(
-                      title: Text(item['LIBELLEPLAT']),
-                      subtitle: Text('${item['PRIXPLATHT']}€ x ${item['quantity']}'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle),
-                            onPressed: () {
-                              updateItemQuantity(item['IDPLAT'], -1);
-                              if (selectedItems[item['IDPLAT'].toString()]?['quantity'] == 0) {
-                                Navigator.pop(context);
-                              }
-                            },
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return selectedItems.isEmpty
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('Aucun article sélectionné'),
+                  ),
+                )
+              : Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Votre commande',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: selectedItems.length,
+                      itemBuilder: (context, index) {
+                        final item = selectedItems.values.elementAt(index);
+                        return ListTile(
+                          title: Text(item['LIBELLEPLAT']),
+                          subtitle: Text('${item['PRIXPLATHT']}€ x ${item['quantity']}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle),
+                                onPressed: () {
+                                  setState(() {
+                                    updateItemQuantity(item['IDPLAT'], -1);
+                                  });
+                                  setModalState(() {});
+                                },
+                              ),
+                              Text('${item['quantity']}'),
+                              IconButton(
+                                icon: const Icon(Icons.add_circle),
+                                onPressed: () {
+                                  setState(() {
+                                    updateItemQuantity(item['IDPLAT'], 1);
+                                  });
+                                  setModalState(() {});
+                                },
+                              ),
+                            ],
                           ),
-                          Text('${item['quantity']}'),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle),
-                            onPressed: () => updateItemQuantity(item['IDPLAT'], 1),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Total: ${totalAmount.toStringAsFixed(2)}€',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      submitOrder();
+                    },
+                    child: const Text('Valider la commande'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Total: ${totalAmount.toStringAsFixed(2)}€',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                  submitOrder();
-                },
-                child: const Text('Valider la commande'),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -153,33 +176,42 @@ class _Page2State extends State<Page2> {
         selectedItems[id] = {...item, 'quantity': 1};
       }
       updateTotal();
+      // Save state after updates
+      Page2.savedItems = Map.from(selectedItems);
+      Page2.savedTotal = totalAmount;
     });
   }
 
   void submitOrder() {
-    if (selectedItems.isNotEmpty) {
-      final orderItems = selectedItems.values.map((item) => {
-        ...item,
-        'quantity': item['quantity'],
-        'PRIXPLATHT': item['PRIXPLATHT'],
-        'LIBELLEPLAT': item['LIBELLEPLAT'],
-        'VEGGIE': item['VEGGIE'],
-      }).toList();
+  if (selectedItems.isNotEmpty) {
+    final orderItems = selectedItems.values.map((item) => {
+      ...item,
+      'quantity': item['quantity'],
+      'PRIXPLATHT': item['PRIXPLATHT'],
+      'LIBELLEPLAT': item['LIBELLEPLAT'],
+      'VEGGIE': item['VEGGIE'],
+    }).toList();
 
-      Page3.addOrder(orderItems, totalAmount);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Commande envoyée avec succès!')),
-      );
-      
-      setState(() {
-        selectedItems.clear();
-        totalAmount = 0;
-      });
+    Page3.addOrder(orderItems, totalAmount);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Commande envoyée avec succès!')),
+    );
+    
+    setState(() {
+      selectedItems.clear();
+      totalAmount = 0;
+      Page2.savedItems.clear();
+      Page2.savedTotal = 0;
+    });
 
-      Navigator.pushNamed(context, '/status');
-    }
+    // Navigate to status page after clearing state
+    Navigator.pushNamed(context, '/status').then((_) {
+      // Refresh state when returning from status page
+      setState(() {});
+    });
   }
+}
 
   List<dynamic> getItemsByCategory() {
     if (currentSection.isEmpty) return [];
