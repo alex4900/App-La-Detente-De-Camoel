@@ -10,7 +10,7 @@ import 'qrCode/qrScanner.dart';
 //
 import 'home/page2.dart';
 import 'home/page3.dart';
-import 'home/page4.dart';
+import 'chat/AccueilChat.dart';
 
 class HomePageScreen extends StatefulWidget {
   final int initialIndex;
@@ -30,12 +30,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
   }
 
   // Page login ajoutée au début de la liste (index 0)
-  final List<Widget> _children = const <Widget>[
-    Connexion(),
-    QRScannerScreen(),
-    Page2(),
-    Page3(),
-    Page4(),
+  final List<Widget> _children = <Widget>[
+    const Connexion(),
+    const QRScannerScreen(),
+    const Page2(),
+    const Page3(),
+    ChatPage(),
   ];
 
   final List<String> _titles = <String>[
@@ -64,7 +64,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
             label: 'Scan QR',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.accessible_forward_sharp),
+            icon: Icon(Icons.add_shopping_cart),
             label: 'Commander',
           ),
           BottomNavigationBarItem(
