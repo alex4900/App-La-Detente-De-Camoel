@@ -3,10 +3,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../utils/config.dart';
+import 'package:flutter/services.dart';
 import 'page3.dart';
 
 class Page2 extends StatefulWidget {
-  static Map<String, Map<String, dynamic  >> savedItems = {};
+  static Map<String, Map<String, dynamic>> savedItems = {};
   static double savedTotal = 0.0;
   static String savedSection = 'Boissons';
   const Page2({Key? key}) : super(key: key);
@@ -30,6 +31,7 @@ class _Page2State extends State<Page2> {
     'Fromages': 6,
     'Alcools': 7,
   };
+  final tableNumberController = TextEditingController();
 
   @override
   void initState() {
@@ -85,78 +87,96 @@ class _Page2State extends State<Page2> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return selectedItems.isEmpty
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text('Aucun article sélectionné'),
-                  ),
-                )
-              : Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Votre commande',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: selectedItems.length,
-                      itemBuilder: (context, index) {
-                        final item = selectedItems.values.elementAt(index);
-                        return ListTile(
-                          title: Text(item['LIBELLEPLAT']),
-                          subtitle: Text('${item['PRIXPLATHT']}€ x ${item['quantity']}'),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.remove_circle),
-                                onPressed: () {
-                                  setState(() {
-                                    updateItemQuantity(item['IDPLAT'], -1);
-                                  });
-                                  setModalState(() {});
-                                },
-                              ),
-                              Text('${item['quantity']}'),
-                              IconButton(
-                                icon: const Icon(Icons.add_circle),
-                                onPressed: () {
-                                  setState(() {
-                                    updateItemQuantity(item['IDPLAT'], 1);
-                                  });
-                                  setModalState(() {});
-                                },
-                              ),
-                            ],
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Aucun article sélectionné'),
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Votre commande',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: tableNumberController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Numéro de table',
+                            hintText: 'Entrez le numéro de table',
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: selectedItems.length,
+                            itemBuilder: (context, index) {
+                              final item =
+                                  selectedItems.values.elementAt(index);
+                              return ListTile(
+                                title: Text(item['LIBELLEPLAT']),
+                                subtitle: Text(
+                                    '${item['PRIXPLATHT']}€ x ${item['quantity']}'),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.remove_circle),
+                                      onPressed: () {
+                                        setState(() {
+                                          updateItemQuantity(
+                                              item['IDPLAT'], -1);
+                                        });
+                                        setModalState(() {});
+                                      },
+                                    ),
+                                    Text('${item['quantity']}'),
+                                    IconButton(
+                                      icon: const Icon(Icons.add_circle),
+                                      onPressed: () {
+                                        setState(() {
+                                          updateItemQuantity(item['IDPLAT'], 1);
+                                        });
+                                        setModalState(() {});
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Total: ${totalAmount.toStringAsFixed(2)}€',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            submitOrder();
+                          },
+                          child: const Text('Valider la commande'),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Total: ${totalAmount.toStringAsFixed(2)}€',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      submitOrder();
-                    },
-                    child: const Text('Valider la commande'),
-                  ),
-                ],
-              ),
-            );
+                  );
           },
         );
       },
@@ -183,35 +203,42 @@ class _Page2State extends State<Page2> {
   }
 
   void submitOrder() {
-  if (selectedItems.isNotEmpty) {
-    final orderItems = selectedItems.values.map((item) => {
-      ...item,
-      'quantity': item['quantity'],
-      'PRIXPLATHT': item['PRIXPLATHT'],
-      'LIBELLEPLAT': item['LIBELLEPLAT'],
-      'VEGGIE': item['VEGGIE'],
-    }).toList();
+    if (selectedItems.isNotEmpty) {
+      final orderItems = selectedItems.values
+          .map((item) => {
+                ...item,
+                'quantity': item['quantity'],
+                'PRIXPLATHT': item['PRIXPLATHT'],
+                'LIBELLEPLAT': item['LIBELLEPLAT'],
+                'VEGGIE': item['VEGGIE'],
+              })
+          .toList();
 
-    Page3.addOrder(orderItems, totalAmount);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Commande envoyée avec succès!')),
-    );
-    
-    setState(() {
-      selectedItems.clear();
-      totalAmount = 0;
-      Page2.savedItems.clear();
-      Page2.savedTotal = 0;
-    });
+      Page3.addOrder(
+        orderItems,
+        totalAmount,
+        tableNumber: tableNumberController.text,
+      );
 
-    // Navigate to status page after clearing state
-    Navigator.pushNamed(context, '/status').then((_) {
-      // Refresh state when returning from status page
-      setState(() {});
-    });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Commande envoyée avec succès!')),
+      );
+
+      setState(() {
+        selectedItems.clear();
+        totalAmount = 0;
+        Page2.savedItems.clear();
+        Page2.savedTotal = 0;
+        tableNumberController.clear();
+      });
+
+      // Navigate to status page after clearing state
+      Navigator.pushNamed(context, '/status').then((_) {
+        // Refresh state when returning from status page
+        setState(() {});
+      });
+    }
   }
-}
 
   List<dynamic> getItemsByCategory() {
     if (currentSection.isEmpty) return [];
@@ -234,7 +261,8 @@ class _Page2State extends State<Page2> {
             );
           },
         ),
-        title: Text(currentSection.isEmpty ? 'Nouvelle commande' : currentSection),
+        title:
+            Text(currentSection.isEmpty ? 'Nouvelle commande' : currentSection),
         actions: [
           if (selectedItems.isNotEmpty)
             IconButton(
@@ -354,8 +382,7 @@ class _Page2State extends State<Page2> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (item['VEGGIE'])
-                  const Icon(Icons.eco, color: Colors.green),
+                if (item['VEGGIE']) const Icon(Icons.eco, color: Colors.green),
                 const SizedBox(width: 8),
                 if (isSelected) ...[
                   IconButton(

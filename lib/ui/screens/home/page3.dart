@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class Page3 extends StatefulWidget {
-
   static List<Map<String, dynamic>> confirmedOrders = [];
-  
-  static void addOrder(List<dynamic> items, double total) {
+
+  static void addOrder(List<dynamic> items, double total,
+      {required String tableNumber}) {
     // Insert new order at the beginning of the list
     confirmedOrders.insert(0, {
       'id': DateTime.now().toString(),
@@ -12,6 +12,7 @@ class Page3 extends StatefulWidget {
       'total': total,
       'status': 'En attente',
       'timestamp': DateTime.now(),
+      'tableNumber': tableNumber,
     });
   }
 
@@ -66,7 +67,7 @@ class _Page3State extends State<Page3> {
                 final orderNumber = Page3.confirmedOrders.length - index;
                 // Get the order (newest orders first)
                 final order = Page3.confirmedOrders[index];
-                
+
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ExpansionTile(
@@ -85,17 +86,35 @@ class _Page3State extends State<Page3> {
                           decoration: BoxDecoration(
                             color: Color(
                               int.parse(
-                                getStatusColor(order['status']).substring(1, 7),
-                                radix: 16,
-                              ) + 0xFF000000,
+                                    getStatusColor(order['status'])
+                                        .substring(1, 7),
+                                    radix: 16,
+                                  ) +
+                                  0xFF000000,
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             order['status'],
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'Table ${order['tableNumber']}',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        )
                       ],
                     ),
                     subtitle: Text(

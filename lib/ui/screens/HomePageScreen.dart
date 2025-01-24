@@ -34,12 +34,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
     const Connexion(),
     const QRScannerScreen(),
     const Page2(),
-    const Page3(),
+    Page3(),
     ChatPage(),
   ];
 
   final List<String> _titles = <String>[
-    'Connexion',  // Titre pour la page de login
+    'Connexion', // Titre pour la page de login
     'Scan QR',
     'Nouvelle commande',
     'Status commandes',
@@ -49,34 +49,33 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: _children[_currentIndex],
       // Affiche la navbar seulement si on n'est pas sur la page login et que l'index <= 2
       bottomNavigationBar: _currentIndex != 0 && _currentIndex <= 4
           ? BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        onTap: onTabTapped,
-        // Décale l'index de -1 car la page login n'est pas dans la navbar
-        currentIndex: _currentIndex - 1,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code),
-            label: 'Scan QR',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_shopping_cart),
-            label: 'Commander',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
-            label: 'Status',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-        ],
-      )
+              type: BottomNavigationBarType.fixed,
+              onTap: onTabTapped,
+              // Décale l'index de -1 car la page login n'est pas dans la navbar
+              currentIndex: _currentIndex - 1,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.qr_code),
+                  label: 'Scan QR',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.add_shopping_cart),
+                  label: 'Commander',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.list_alt),
+                  label: 'Status',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.chat),
+                  label: 'Chat',
+                ),
+              ],
+            )
           : null,
     );
   }
