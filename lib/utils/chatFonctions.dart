@@ -61,3 +61,28 @@ Future<void> mettreAJourMessages(int idChat, int offset) async {
   messagesLocaux.addAll(nouveauxMessages);
   await enregistrerMessages(messagesLocaux);
 }
+
+Future<void> sendMessage(int idChat, int boolCuisinier, String message) async {
+  var headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  var body = jsonEncode({
+    'idChat': idChat,
+    'boolCuisinier': boolCuisinier,
+    'message': message,
+  });
+
+  String url = '${AppConfig.baseUrl}/SendMessage';
+
+  var response = await http.post(
+    Uri.parse(url),
+    headers: headers,
+    body: body,
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to send message: ${response.reasonPhrase}');
+  }
+}

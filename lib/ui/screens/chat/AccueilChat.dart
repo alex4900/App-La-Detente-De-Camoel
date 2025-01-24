@@ -31,19 +31,6 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message) {
-    final textMessage = types.TextMessage(
-      author: _server, // Server sends the message
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: DateTime.now().toString(),
-      text: message.text,
-    );
-    setState(() {
-      _messages.insert(0, textMessage);
-    });
-    _saveMessages();
-  }
-
   void _saveMessages() async {
     final prefs = await SharedPreferences.getInstance();
     final messagesJson = _messages.map((message) => message.toJson()).toList();
@@ -69,6 +56,26 @@ class _ChatPageState extends State<ChatPage> {
       id: json['idMessage'].toString(),
       text: json['contenu'],
     );
+  }
+
+  void _handleSendPressed(types.PartialText message) async {
+    final textMessage = types.TextMessage(
+      author: _server, // Server sends the message
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: DateTime.now().toString(),
+      text: message.text,
+    );
+
+    setState(() {
+      _messages.insert(0, textMessage);
+    });
+
+    try {
+      await sendMessage(1, 0, message.text); // Replace with actual idChat and boolCuisinier
+      _saveMessages();
+    } catch (e) {
+      print('Failed to send message: $e');
+    }
   }
 
   @override
