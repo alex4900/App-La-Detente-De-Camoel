@@ -83,6 +83,12 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat avec les cuisines'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _fetchMessagesFromApi,
+          ),
+        ],
       ),
       body: Chat(
         messages: _messages,
@@ -102,10 +108,7 @@ class _ChatPageState extends State<ChatPage> {
           inputBorderRadius: BorderRadius.circular(20),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _fetchMessagesFromApi,
-        child: Icon(Icons.refresh),
-      ),
+
     );
   }
 }
