@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import '../../../utils/chatFonctions.dart';
 
 class ChatPage extends StatefulWidget {
   @override
@@ -23,31 +25,10 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _loadMessages() async {
-    final prefs = await SharedPreferences.getInstance();
-    final messagesString = prefs.getString('messages');
-    if (messagesString != null) {
-      final List<dynamic> messagesJson = jsonDecode(messagesString);
-      setState(() {
-        _messages = messagesJson.map((json) => types.Message.fromJson(json)).toList();
-      });
-    } else {
-      final textMessage = types.TextMessage(
-        author: _chef, // Chef as the author
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        id: 'msg1',
-        text: 'Bienvenue dans le chat avec les cuisines !',
-      );
-      setState(() {
-        _messages = [textMessage];
-      });
-      _saveMessages(); // Save the welcome message
-    }
-  }
-
-  void _saveMessages() async {
-    final prefs = await SharedPreferences.getInstance();
-    final messagesJson = _messages.map((message) => message.toJson()).toList();
-    await prefs.setString('messages', jsonEncode(messagesJson));
+    List<dynamic> messages = await recupererMessagesDepuisApi(1, 1); // Replace with actual idChat and offset
+    setState(() {
+      _messages = messages.map((json) => _convertToTextMessage(json)).toList();
+    });
   }
 
   void _handleSendPressed(types.PartialText message) {
@@ -61,6 +42,33 @@ class _ChatPageState extends State<ChatPage> {
       _messages.insert(0, textMessage);
     });
     _saveMessages();
+  }
+
+  void _saveMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final messagesJson = _messages.map((message) => message.toJson()).toList();
+    await prefs.setString('messages', jsonEncode(messagesJson));
+  }
+
+  void _fetchMessagesFromApi() async {
+    List<dynamic> messages = await recupererMessagesDepuisApi(1, 0); // Replace with actual idChat and offset
+    print(messages); // Print messages to the console
+    setState(() {
+      _messages = messages.map((json) => _convertToTextMessage(json)).toList();
+    });
+  }
+
+  types.TextMessage _convertToTextMessage(dynamic json) {
+    int boolCuisinier = json['boolCuisinier'] is String
+        ? int.parse(json['boolCuisinier'])
+        : json['boolCuisinier'];
+
+    return types.TextMessage(
+      author: boolCuisinier == 1 ? _chef : _server,
+      createdAt: DateTime.parse(json['date']).millisecondsSinceEpoch,
+      id: json['idMessage'].toString(),
+      text: json['contenu'],
+    );
   }
 
   @override
@@ -86,6 +94,10 @@ class _ChatPageState extends State<ChatPage> {
           inputTextColor: Colors.grey[800]!,
           inputBorderRadius: BorderRadius.circular(20),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _fetchMessagesFromApi,
+        child: Icon(Icons.refresh),
       ),
     );
   }

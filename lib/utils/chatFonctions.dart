@@ -3,17 +3,27 @@ import 'package:http/http.dart' as http;
 import 'config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+Future<List<dynamic>> recupererMessagesEnregistres() async {
+  final prefs = await SharedPreferences.getInstance();
+  String? messagesString = prefs.getString('messages');
+  if (messagesString != null) {
+    return jsonDecode(messagesString);
+  } else {
+    return [];
+  }
+}
 
-Future<List<dynamic>> recupererMessages() async {
+Future<void> enregistrerMessages(List<dynamic> messages) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('messages', jsonEncode(messages));
+}
+
+Future<List<dynamic>> recupererMessagesDepuisApi(int idChat, int offset) async {
   var headers = {
     'Accept': 'application/json',
   };
 
-  final prefs = await SharedPreferences.getInstance();
+  /*final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('auth_token');
 
   if (token == null) {
@@ -22,10 +32,10 @@ Future<List<dynamic>> recupererMessages() async {
 
   headers['Authorization'] = 'Bearer $token';
 
-  String url = '${AppConfig.baseUrl}/messages';
+  */
+  String url = '${AppConfig.baseUrl}/Message/$idChat/$offset';
 
   var request = http.Request('GET', Uri.parse(url));
-  request.body = '''''';
   request.headers.addAll(headers);
 
   http.StreamedResponse response = await request.send();
@@ -38,18 +48,16 @@ Future<List<dynamic>> recupererMessages() async {
   }
 }
 
+Future<void> mettreAJourMessages(int idChat, int offset) async {
+  List<dynamic> messagesLocaux = await recupererMessagesEnregistres();
+  List<dynamic> messagesApi = await recupererMessagesDepuisApi(idChat, offset);
 
-Future<void> enregistrerMessages(List<dynamic> messages) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('messages', jsonEncode(messages));
-}
+  // Filter out messages that are already in local storage
+  List<dynamic> nouveauxMessages = messagesApi.where((messageApi) {
+    return !messagesLocaux.any((messageLocal) => messageLocal['idMessage'] == messageApi['idMessage']);
+  }).toList();
 
-Future<List<dynamic>> recupererMessagesEnregistres() async {
-  final prefs = await SharedPreferences.getInstance();
-  String? messagesString = prefs.getString('messages');
-  if (messagesString != null) {
-    return jsonDecode(messagesString);
-  } else {
-    return [];
-  }
+  // Add new messages to local storage
+  messagesLocaux.addAll(nouveauxMessages);
+  await enregistrerMessages(messagesLocaux);
 }
