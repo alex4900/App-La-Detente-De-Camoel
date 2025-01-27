@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'changerTable.dart';
 import 'package:android_detente_camoel/utils/QRFonctions.dart';
+import 'package:android_detente_camoel/ui/screens/home/page2.dart';
 
 class QRResultat extends StatefulWidget {
   final Map<String, dynamic> content;
@@ -206,7 +208,12 @@ class _QRResultatState extends State<QRResultat> {
                 const SizedBox(width: 16.0),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Page2()),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       backgroundColor: Colors.blue,
