@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'La Detente De Camoel',
       debugShowCheckedModeBanner: false, 
       theme: myTheme,
+      debugShowCheckedModeBanner: false,
       home: HomePageScreen(),
     );
   }
