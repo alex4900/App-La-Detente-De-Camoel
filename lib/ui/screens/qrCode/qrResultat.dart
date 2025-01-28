@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'changerTable.dart';
 import 'package:android_detente_camoel/utils/QRFonctions.dart';
-import 'package:android_detente_camoel/ui/screens/home/page2.dart';
+import 'package:android_detente_camoel/ui/screens/HomePageScreen.dart';
 
 class QRResultat extends StatefulWidget {
   final Map<String, dynamic> content;
@@ -211,7 +211,7 @@ class _QRResultatState extends State<QRResultat> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Page2()),
+                        MaterialPageRoute(builder: (context) => const HomePageScreen(initialIndex: 2)),
                       );
                     },
                     style: ElevatedButton.styleFrom(
