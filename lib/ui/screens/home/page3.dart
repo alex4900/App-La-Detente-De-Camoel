@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'page2.dart';
 import '../HomePageScreen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../../utils/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Page3 extends StatefulWidget {
   static List<Map<String, dynamic>> confirmedOrders = [];
@@ -106,6 +110,63 @@ class _Page3State extends State<Page3> {
       context,
       MaterialPageRoute(builder: (context) => HomePageScreen(initialIndex: 2)),
     );
+  }
+
+  Future<void> confirmOrder(Map<String, dynamic> order) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        throw Exception('Non authentifié');
+      }
+
+      // Nouvelle structure pour l'API
+      final orderData = {
+        'commande': {
+          'numeroTable': order['tableNumber'],
+        },
+        'plats': (order['items'] as List).map((item) => {
+          'idPlat': item['idPlat'],
+          'idInstance':'instance3',
+        }).toList()
+      };
+
+      final response = await http.post(
+        Uri.parse(AppConfig.ordersEndpoint),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(orderData),
+      );
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        
+        setState(() {
+          order['idCommande'] = responseData['IDCOMMANDE']; // Stocke l'ID de commande retourné
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Commande confirmée avec succès'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message'] ?? 'Erreur lors de la confirmation');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -243,9 +304,7 @@ class _Page3State extends State<Page3> {
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   ElevatedButton(
-                                    onPressed: () => setState(() {
-                                      order['status'] = 'Prêt';
-                                    }),
+                                    onPressed: () => confirmOrder(order),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green,
                                     ),
