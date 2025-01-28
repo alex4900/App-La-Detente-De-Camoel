@@ -41,6 +41,7 @@ class AuthService {
   }
 
   static Future<String> getUserRole() async {
+
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
@@ -49,7 +50,7 @@ class AuthService {
     }
 
     // Envoi de la requête pour récupérer le rôle
-    var url = Uri.parse("${AppConfig.baseUrl}/api/roles");
+    var url = Uri.parse("${AppConfig.baseUrl}/roles");
     var response = await http.get(
       url,
       headers: {
@@ -58,6 +59,7 @@ class AuthService {
       },
     );
 
+    print(response.statusCode);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       return data['role'] ?? 'Aucun rôle';

@@ -17,6 +17,7 @@ class _ConnexionState extends State<Connexion> {
   final TextEditingController passwordInput = TextEditingController();
   bool isLoading = false;
 
+
   void login() async {
     setState(() {
       isLoading = true;
@@ -35,64 +36,60 @@ class _ConnexionState extends State<Connexion> {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', token);
 
-
-          // Puis changer de page
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomePageScreen(initialIndex: 1),
-            ),
-          );
+          // Vérifier le rôle de l'utilisateur
+          String role = await AuthService.getUserRole();
+          if (role == 'Serveur') {
+            // Puis changer de page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomePageScreen(initialIndex: 1),
+              ),
+            );
+          } else {
+            showErrorDialog('Vous n\'êtes pas autorisé à accéder à cette ressource.');
+            await prefs.remove('auth_token'); // Supprimer le token si l'utilisateur n'est pas autorisé
+          }
           break;
 
         case 400:
-        // Requête mal formée
           showErrorDialog('Requête invalide. Veuillez vérifier les données saisies.');
           break;
 
         case 401:
-        // Authentification échouée
           showErrorDialog('Email ou mot de passe incorrect.');
           break;
 
         case 403:
-        // Accès refusé
           showErrorDialog('Vous n\'êtes pas autorisé à accéder à cette ressource.');
           break;
 
         case 404:
-        // Ressource introuvable
           showErrorDialog('Ressource introuvable. Veuillez réessayer plus tard.');
           break;
 
         case 422:
-        // Données invalides
           final errorData = jsonDecode(response.body);
           showErrorDialog(errorData['message'] ?? 'Données invalides.');
           break;
 
         case 429:
-        // Trop de requêtes
           showErrorDialog('Trop de requêtes. Veuillez réessayer plus tard.');
           break;
 
         case 500:
-        // Erreur serveur
           showErrorDialog('Erreur interne du serveur. Veuillez réessayer plus tard.');
           break;
 
         case 503:
-        // Service indisponible
           showErrorDialog('Service temporairement indisponible. Veuillez réessayer plus tard.');
           break;
 
         case 504:
-        // Délai d'attente dépassé
           showErrorDialog('Le serveur ne répond pas. Veuillez réessayer plus tard.');
           break;
 
         default:
-        // yep
           showErrorDialog('Erreur inattendue : ${response.statusCode}');
           break;
       }
