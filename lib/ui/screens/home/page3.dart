@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'page2.dart';
+import '../HomePageScreen.dart';
 
 class Page3 extends StatefulWidget {
   static List<Map<String, dynamic>> confirmedOrders = [];
@@ -29,9 +31,81 @@ class _Page3State extends State<Page3> {
         return '#4169E1';
       case 'prêt':
         return '#32CD32';
+      case 'annulé':
+        return '#FF0000';
       default:
         return '#808080';
     }
+  }
+
+  void showCancelDialog(Map<String, dynamic> order) {
+    String cancelReason = '';
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Raison de l\'annulation'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Sélectionnez une raison',
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'client', child: Text('Annulation client')),
+                  DropdownMenuItem(value: 'erreur', child: Text('Erreur de saisie')),
+                  DropdownMenuItem(value: 'rupture', child: Text('Rupture de stock')),
+                  DropdownMenuItem(value: 'technique', child: Text('Problème technique')),
+                  DropdownMenuItem(value: 'autre', child: Text('Autre raison')),
+                ],
+                onChanged: (value) {
+                  cancelReason = value ?? '';
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Annuler'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('Confirmer'),
+              onPressed: () {
+                setState(() {
+                  order['status'] = 'Annulé';
+                  order['cancelReason'] = cancelReason;
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void modifyOrder(Map<String, dynamic> order) {
+    // Sauvegarder les items de la commande dans Page2
+    Page2.savedItems = Map.fromEntries(
+      (order['items'] as List).map((item) => MapEntry(
+        item['IDPLAT'].toString(),
+        {...item},
+      )),
+    );
+    Page2.savedTotal = order['total'];
+    
+    // Supprimer la commande actuelle
+    setState(() {
+      Page3.confirmedOrders.remove(order);
+    });
+
+    // Naviguer vers Page2
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomePageScreen(initialIndex: 2)),
+    );
   }
 
   @override
@@ -140,23 +214,70 @@ class _Page3State extends State<Page3> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           children: [
-                            const Text(
-                              'Total:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                            // Total row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Total:',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  '${order['total'].toStringAsFixed(2)}€',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${order['total'].toStringAsFixed(2)}€',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                            const SizedBox(height: 16),
+                            // Action buttons row
+                            if (order['status'] == 'En attente')
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () => setState(() {
+                                      order['status'] = 'Prêt';
+                                    }),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                    ),
+                                    child: const Text('Confirmer'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () => modifyOrder(order),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                    ),
+                                    child: const Text('Modifier'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () => showCancelDialog(order),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                    ),
+                                    child: const Text('Annuler'),
+                                  ),
+                                ],
                               ),
-                            ),
+                            if (order['cancelReason'] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  'Raison d\'annulation: ${order['cancelReason']}',
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
