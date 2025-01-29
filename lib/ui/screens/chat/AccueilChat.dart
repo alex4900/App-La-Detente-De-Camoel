@@ -15,8 +15,8 @@ class _ChatPageState extends State<ChatPage> {
   List<types.Message> _messages = [];
 
   // Define two users: a server and a chef
-  final types.User _server = types.User(id: 'server1', firstName: 'Serveur');
-  final types.User _chef = types.User(id: 'chef1', firstName: 'Cuisinier');
+  final types.User _server = types.User(id: 'server', firstName: 'Serveur');
+  final types.User _chef = types.User(id: 'chef', firstName: 'Cuisinier');
 
   @override
   void initState() {
