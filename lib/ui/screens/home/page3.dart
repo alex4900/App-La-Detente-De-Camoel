@@ -123,11 +123,10 @@ class _Page3State extends State<Page3> {
 
       // Nouvelle structure pour l'API
       final orderData = {
-        'commande': {
-          'numeroTable': order['tableNumber'],
-        },
+        'commentaireClient': '',
+        'tableNumber': order['tableNumber'],
         'plats': (order['items'] as List).map((item) => {
-          'idPlat': item['idPlat'],
+          'idPlat': item['IDPLAT'],
           'idInstance':'instance3',
         }).toList()
       };
@@ -142,9 +141,18 @@ class _Page3State extends State<Page3> {
         body: jsonEncode(orderData),
       );
 
-      if (response.statusCode == 201) {
+
+
+
+      print("\n\n\n"+jsonEncode(orderData)+"\n\n"+order['items'].toString()+"\n");
+
+
+
+
+      print(response.body);
+      if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        
+        print(responseData);
         setState(() {
           order['idCommande'] = responseData['IDCOMMANDE']; // Stocke l'ID de commande retourné
         });
