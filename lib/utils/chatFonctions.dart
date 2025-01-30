@@ -23,7 +23,7 @@ Future<List<dynamic>> recupererMessagesDepuisApi(int idChat, int offset) async {
     'Accept': 'application/json',
   };
 
-  /*final prefs = await SharedPreferences.getInstance();
+  final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('auth_token');
 
   if (token == null) {
@@ -32,7 +32,6 @@ Future<List<dynamic>> recupererMessagesDepuisApi(int idChat, int offset) async {
 
   headers['Authorization'] = 'Bearer $token';
 
-  */
   String url = '${AppConfig.baseUrl}/Message/$idChat/$offset';
 
   var request = http.Request('GET', Uri.parse(url));
@@ -67,6 +66,11 @@ Future<void> sendMessage(int idChat, int boolCuisinier, String message) async {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+
+  headers['Authorization'] = 'Bearer $token';
 
   var body = jsonEncode({
     'idChat': idChat,

@@ -51,6 +51,7 @@ class AuthService {
       },
     );
 
+    print(response.statusCode);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       return data['role'] ?? 'Aucun rôle';
