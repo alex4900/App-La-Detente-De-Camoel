@@ -1,4 +1,4 @@
 class AppConfig {
-  static const String baseUrl = 'http://192.168.147.10/api';
+  static const String baseUrl = 'http://ladetentedecamoel-web-7uucjr-41b780-192-168-157-50.traefik.me/api';
   static const String ordersEndpoint = '$baseUrl/addCommande';
 }

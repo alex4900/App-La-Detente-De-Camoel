@@ -17,7 +17,7 @@ class Page2 extends StatefulWidget {
 }
 
 class _Page2State extends State<Page2> {
-  List<dynamic> allItems = [];
+  List<dynamic> allItems =[];
   Map<String, Map<String, dynamic>> selectedItems = {};
   bool isLoading = false;
   String currentSection = 'Boissons'; // Set default section
@@ -80,63 +80,115 @@ class _Page2State extends State<Page2> {
     });
   }
 
-  void showCartPreview() {
-    showModalBottomSheet(
+  void showCommentDialog(String itemId) {
+    final textController = TextEditingController(
+      text: selectedItems[itemId]?['comment'] ?? ''
+    );
+
+    showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return selectedItems.isEmpty
-                ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('Aucun article sélectionné'),
+      builder: (context) => AlertDialog(
+        title: const Text('Ajouter un commentaire'),
+        content: TextField(
+          controller: textController,
+          decoration: const InputDecoration(
+            hintText: 'Ex: Sans sauce, bien cuit...',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                selectedItems[itemId]?['comment'] = textController.text;
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Sauvegarder'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showCartPreview() {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            child: selectedItems.isEmpty 
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('Aucun article sélectionné'),
+                  ),
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Votre commande',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                  )
-                : Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'Votre commande',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: tableNumberController,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Numéro de table',
-                            hintText: 'Entrez le numéro de table',
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: selectedItems.length,
-                            itemBuilder: (context, index) {
-                              final item =
-                                  selectedItems.values.elementAt(index);
-                              return ListTile(
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: tableNumberController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Numéro de table',
+                        hintText: 'Entrez le numéro de table',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: selectedItems.length,
+                        itemBuilder: (context, index) {
+                          final item = selectedItems.values.elementAt(index);
+                          final itemId = item['IDPLAT'].toString();
+                          return Column(
+                            children: [
+                              ListTile(
                                 title: Text(item['LIBELLEPLAT']),
-                                subtitle: Text(
-                                    '${item['PRIXPLATHT']}€ x ${item['quantity']}'),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${item['PRIXPLATHT']}€ x ${item['quantity']}'),
+                                    if (item['comment']?.isNotEmpty ?? false)
+                                      Text(
+                                        'Commentaire: ${item['comment']}',
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                  ],
+                                ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
+                                      icon: const Icon(Icons.comment),
+                                      onPressed: () => showCommentDialog(itemId),
+                                    ),
+                                    IconButton(
                                       icon: const Icon(Icons.remove_circle),
                                       onPressed: () {
                                         setState(() {
-                                          updateItemQuantity(
-                                              item['IDPLAT'], -1);
+                                          updateItemQuantity(item['IDPLAT'], -1);
                                         });
                                         setModalState(() {});
                                       },
@@ -153,35 +205,38 @@ class _Page2State extends State<Page2> {
                                     ),
                                   ],
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Total: ${totalAmount.toStringAsFixed(2)}€',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(50),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            submitOrder();
-                          },
-                          child: const Text('Valider la commande'),
-                        ),
-                      ],
+                              ),
+                              const Divider(),
+                            ],
+                          );
+                        },
+                      ),
                     ),
-                  );
-          },
-        );
-      },
-    );
-  }
+                    const SizedBox(height: 16),
+                    Text(
+                      'Total: ${totalAmount.toStringAsFixed(2)}€',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        submitOrder();
+                      },
+                      child: const Text('Valider la commande'),
+                    ),
+                  ],
+                ),
+          );
+        },
+      );
+    },
+  );
+}
+  
 
   void updateItemQuantity(dynamic itemId, int change) {
     setState(() {
@@ -202,44 +257,55 @@ class _Page2State extends State<Page2> {
     });
   }
 
-  void submitOrder() {
-    if (selectedItems.isNotEmpty) {
-      final orderItems = selectedItems.values
-          .map((item) => {
-                ...item,
-                'quantity': item['quantity'],
-                'PRIXPLATHT': item['PRIXPLATHT'],
-                'LIBELLEPLAT': item['LIBELLEPLAT'],
-                'VEGGIE': item['VEGGIE'],
-              })
-          .toList();
-
-      Page3.addOrder(
-        orderItems,
-        totalAmount,
-        tableNumber: tableNumberController.text,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Commande envoyée avec succès!')),
-      );
-
-      setState(() {
-        selectedItems.clear();
-        totalAmount = 0;
-        Page2.savedItems.clear();
-        Page2.savedTotal = 0;
-        tableNumberController.clear();
-      });
-
-      // Navigate to status page after clearing state
-      Navigator.pushNamed(context, '/status').then((_) {
-        // Refresh state when returning from status page
-        setState(() {});
-      });
-    }
+  void submitOrder() async {
+  if (selectedItems.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Veuillez sélectionner des articles')),
+    );
+    return;
   }
 
+  if (tableNumberController.text.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(tableNumberController.text)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Veuillez entrer un numéro de table valide (chiffres uniquement)')),
+    );
+    return;
+  }
+
+  // Collect all comments from items
+  final allComments = selectedItems.values
+      .where((item) => item['comment']?.isNotEmpty ?? false)
+      .map((item) => '${item['LIBELLEPLAT']}: ${item['comment']}')
+      .join('\n');
+
+  final orderItems = selectedItems.values.map((item) => {
+    ...item,
+    'quantity': item['quantity'],
+    'PRIXPLATHT': item['PRIXPLATHT'],
+    'LIBELLEPLAT': item['LIBELLEPLAT'],
+    'VEGGIE': item['VEGGIE'],
+    'comment': item['comment'] ?? '', // Include comment with item
+  }).toList();
+
+  // Pass order to Page3 with comments
+  Page3.addOrder(
+    orderItems,
+    totalAmount,
+    tableNumber: tableNumberController.text,
+    commentaireClient: allComments,
+  );
+
+  setState(() {
+    selectedItems.clear();
+    totalAmount = 0;
+    Page2.savedItems.clear();
+    Page2.savedTotal = 0;
+    tableNumberController.clear();
+  });
+
+  // Navigate to status page
+  Navigator.pushNamed(context, '/status');
+}
   List<dynamic> getItemsByCategory() {
     if (currentSection.isEmpty) return [];
     final categoryId = categoryIds[currentSection];
@@ -399,7 +465,7 @@ class _Page2State extends State<Page2> {
             ),
           ),
         );
-      },
-    );
-  }
+    },
+  );
+}
 }

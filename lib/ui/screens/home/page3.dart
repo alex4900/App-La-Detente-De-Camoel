@@ -10,7 +10,7 @@ class Page3 extends StatefulWidget {
   static List<Map<String, dynamic>> confirmedOrders = [];
 
   static void addOrder(List<dynamic> items, double total,
-      {required String tableNumber}) {
+      {required String tableNumber, required String commentaireClient}) {
     // Insert new order at the beginning of the list
     confirmedOrders.insert(0, {
       'id': DateTime.now().toString(),
@@ -19,6 +19,7 @@ class Page3 extends StatefulWidget {
       'status': 'En attente',
       'timestamp': DateTime.now(),
       'tableNumber': tableNumber,
+      'commentaireClient': commentaireClient,
     });
   }
 
@@ -114,6 +115,10 @@ class _Page3State extends State<Page3> {
 
   Future<void> confirmOrder(Map<String, dynamic> order) async {
     try {
+      //valide table
+      if (order['tableNumber'].isEmpty || !RegExp(r'^[0-9]+$').hasMatch(order['tableNumber'])) {
+      throw Exception('Numéro de table invalide');
+    }
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
 
@@ -123,13 +128,14 @@ class _Page3State extends State<Page3> {
 
       // Nouvelle structure pour l'API
       final orderData = {
-        'commentaireClient': '',
-        'tableNumber': order['tableNumber'],
-        'plats': (order['items'] as List).map((item) => {
-          'idPlat': item['IDPLAT'],
-          'idInstance':'instance3',
-        }).toList()
-      };
+  'commentaireClient': order['commentaireClient'],
+  'tableNumber': order['tableNumber'],
+  'plats': (order['items'] as List).map((item) => {
+    'idPlat': item['IDPLAT'],
+    'qte': item['quantity'],
+    'commentaire': item['comment'] ?? '',
+  }).toList(),
+};
 
       final response = await http.post(
         Uri.parse(AppConfig.ordersEndpoint),
@@ -272,8 +278,21 @@ class _Page3State extends State<Page3> {
                           final item = order['items'][itemIndex];
                           return ListTile(
                             title: Text(item['LIBELLEPLAT']),
-                            subtitle: Text(
-                              'Quantité: ${item['quantity']} - Prix: ${(item['PRIXPLATHT'] * item['quantity']).toStringAsFixed(2)}€',
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Quantité: ${item['quantity']} - Prix: ${(item['PRIXPLATHT'] * item['quantity']).toStringAsFixed(2)}€',
+                                ),
+                                if (item['comment']?.isNotEmpty ?? false)
+                                  Text(
+                                    'Commentaire: ${item['comment']}',
+                                    style: const TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                              ],
                             ),
                             trailing: item['VEGGIE']
                                 ? const Icon(Icons.eco, color: Colors.green)
