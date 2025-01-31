@@ -5,11 +5,14 @@ import 'dart:convert';
 import '../../../utils/config.dart';
 import 'package:flutter/services.dart';
 import 'page3.dart';
+import '../HomePageScreen.dart';
 
 class Page2 extends StatefulWidget {
   static Map<String, Map<String, dynamic>> savedItems = {};
   static double savedTotal = 0.0;
   static String savedSection = 'Boissons';
+  static String? tableNumber;
+  static Map<String, dynamic>? orderBeingModified;
   const Page2({Key? key}) : super(key: key);
 
   @override
@@ -40,6 +43,9 @@ class _Page2State extends State<Page2> {
     selectedItems = Map.from(Page2.savedItems);
     totalAmount = Page2.savedTotal;
     currentSection = Page2.savedSection;
+    if (Page2.tableNumber != null) {
+      tableNumberController.text = Page2.tableNumber!;
+    }
     fetchAllItems();
   }
 
@@ -273,27 +279,39 @@ class _Page2State extends State<Page2> {
   }
 
   // Collect all comments from items
-  final allComments = selectedItems.values
-      .where((item) => item['comment']?.isNotEmpty ?? false)
-      .map((item) => '${item['LIBELLEPLAT']}: ${item['comment']}')
-      .join('\n');
+  final allComments = selectedItems.entries
+      .where((entry) => entry.value['comment'] != null && entry.value['comment'].isNotEmpty)
+      .map((entry) => '${entry.value['LIBELLEPLAT']}: ${entry.value['comment']}')
+      .join('; ');
 
-  final orderItems = selectedItems.values.map((item) => {
-    ...item,
-    'quantity': item['quantity'],
-    'PRIXPLATHT': item['PRIXPLATHT'],
-    'LIBELLEPLAT': item['LIBELLEPLAT'],
-    'VEGGIE': item['VEGGIE'],
-    'comment': item['comment'] ?? '', // Include comment with item
-  }).toList();
+      final orderData = {
+        'commentaireClient': allComments,
+        'tableNumber': int.parse(tableNumberController.text),
+        'plats': selectedItems.values.map((item) => {
+          'idPlat': item['IDPLAT'],
+          'qte': item['quantity'],
+          'prixUnitaire': item['PRIXPLATHT'],
+        }).toList(),
+      };
 
-  // Pass order to Page3 with comments
-  Page3.addOrder(
-    orderItems,
-    totalAmount,
-    tableNumber: tableNumberController.text,
-    commentaireClient: allComments,
-  );
+      if (Page2.orderBeingModified != null) {
+        // Update existing order
+        setState(() {
+          Page2.orderBeingModified!['items'] = selectedItems.values.toList();
+          Page2.orderBeingModified!['total'] = totalAmount;
+          Page2.orderBeingModified!['tableNumber'] = tableNumberController.text;
+          Page2.orderBeingModified = null; // Clear reference
+          Page2.tableNumber = null; // Clear saved table number
+        });
+      } else {
+        // Create new order
+        Page3.addOrder(
+          selectedItems.values.toList(),
+          totalAmount,
+          tableNumber: tableNumberController.text,
+          commentaireClient: allComments,
+        );
+      }
 
   setState(() {
     selectedItems.clear();
@@ -302,10 +320,8 @@ class _Page2State extends State<Page2> {
     Page2.savedTotal = 0;
     tableNumberController.clear();
   });
+  }
 
-  // Navigate to status page
-  Navigator.pushNamed(context, '/status');
-}
   List<dynamic> getItemsByCategory() {
     if (currentSection.isEmpty) return [];
     final categoryId = categoryIds[currentSection];

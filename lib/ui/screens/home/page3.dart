@@ -100,18 +100,23 @@ class _Page3State extends State<Page3> {
       )),
     );
     Page2.savedTotal = order['total'];
+    Page2.tableNumber = order['tableNumber']; // Add this static variable in Page2
+  
+  // Keep track of order being modified
+    Page2.orderBeingModified = order; // Add this static variable in Page2
+  
     
-    // Supprimer la commande actuelle
-    setState(() {
-      Page3.confirmedOrders.remove(order);
-    });
 
-    // Naviguer vers Page2
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomePageScreen(initialIndex: 2)),
-    );
-  }
+     // Navigate to Page2
+  Navigator.pushReplacement(
+    context, 
+    MaterialPageRoute(
+      builder: (context) => HomePageScreen(
+        initialIndex: 2,
+      )
+    ),
+  );
+}
 
   Future<void> confirmOrder(Map<String, dynamic> order) async {
     try {
