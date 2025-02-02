@@ -23,7 +23,8 @@ class _ConnexionState extends State<Connexion> {
     });
 
     try {
-      final response = await AuthService.login(emailInput.text, passwordInput.text);
+      final response =
+          await AuthService.login(emailInput.text, passwordInput.text);
 
       switch (response.statusCode) {
         case 200:
@@ -35,70 +36,74 @@ class _ConnexionState extends State<Connexion> {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', token);
 
-
-          // Puis changer de page
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomePageScreen(initialIndex: 1),
-            ),
-          );
+          // Vérifier le rôle de l'utilisateur
+          String role = await AuthService.getUserRole();
+          if (role == 'Serveur') {
+            // Puis changer de page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomePageScreen(initialIndex: 1),
+              ),
+            );
+          } else {
+            showErrorDialog(
+                'Vous n\'êtes pas autorisé à accéder à cette application.');
+            await prefs.remove(
+                'auth_token'); // Supprimer le token si l'utilisateur n'est pas autorisé
+          }
           break;
 
         case 400:
-        // Requête mal formée
-          showErrorDialog('Requête invalide. Veuillez vérifier les données saisies.');
+          showErrorDialog(
+              'Requête invalide. Veuillez vérifier les données saisies.');
           break;
 
         case 401:
-        // Authentification échouée
           showErrorDialog('Email ou mot de passe incorrect.');
           break;
 
         case 403:
-        // Accès refusé
-          showErrorDialog('Vous n\'êtes pas autorisé à accéder à cette ressource.');
+          showErrorDialog(
+              'Vous n\'êtes pas autorisé à accéder à cette application.');
           break;
 
         case 404:
-        // Ressource introuvable
-          showErrorDialog('Ressource introuvable. Veuillez réessayer plus tard.');
+          showErrorDialog(
+              'Ressource introuvable. Veuillez réessayer plus tard.');
           break;
 
         case 422:
-        // Données invalides
           final errorData = jsonDecode(response.body);
           showErrorDialog(errorData['message'] ?? 'Données invalides.');
           break;
 
         case 429:
-        // Trop de requêtes
           showErrorDialog('Trop de requêtes. Veuillez réessayer plus tard.');
           break;
 
         case 500:
-        // Erreur serveur
-          showErrorDialog('Erreur interne du serveur. Veuillez réessayer plus tard.');
+          showErrorDialog(
+              'Erreur interne du serveur. Veuillez réessayer plus tard.');
           break;
 
         case 503:
-        // Service indisponible
-          showErrorDialog('Service temporairement indisponible. Veuillez réessayer plus tard.');
+          showErrorDialog(
+              'Service temporairement indisponible. Veuillez réessayer plus tard.');
           break;
 
         case 504:
-        // Délai d'attente dépassé
-          showErrorDialog('Le serveur ne répond pas. Veuillez réessayer plus tard.');
+          showErrorDialog(
+              'Le serveur ne répond pas. Veuillez réessayer plus tard.');
           break;
 
         default:
-        // yep
           showErrorDialog('Erreur inattendue : ${response.statusCode}');
           break;
       }
-
     } catch (e) {
-      showErrorDialog("Connexion à la base de données impossible, essayer d'activer le VPN ou de lancez le serveur correctement.");
+      showErrorDialog(
+          "Connexion à la base de données impossible, essayer d'activer le VPN ou de lancez le serveur correctement.");
     } finally {
       setState(() {
         isLoading = false;
@@ -153,9 +158,7 @@ class _ConnexionState extends State<Connexion> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
                         const Text(
                           'Bienvenue',
                           style: TextStyle(
@@ -163,9 +166,7 @@ class _ConnexionState extends State<Connexion> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
                         TextFormField(
                           controller: emailInput,
                           decoration: const InputDecoration(
@@ -173,9 +174,7 @@ class _ConnexionState extends State<Connexion> {
                             labelText: 'Adresse Email',
                           ),
                         ),
-
                         const SizedBox(height: 24),
-
                         TextFormField(
                           controller: passwordInput,
                           obscureText: true,
@@ -184,28 +183,25 @@ class _ConnexionState extends State<Connexion> {
                             labelText: 'Mot de passe',
                           ),
                         ),
-
                         const SizedBox(height: 24),
-
                         isLoading
                             ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
+                                child: CircularProgressIndicator(),
+                              )
                             : ElevatedButton(
-                          onPressed: login,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xff006FFD),
-                            minimumSize: const Size(double.infinity, 48),
-                          ),
-                          child: const Text(
-                            'Connexion',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-
+                                onPressed: login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xff006FFD),
+                                  minimumSize: const Size(double.infinity, 48),
+                                ),
+                                child: const Text(
+                                  'Connexion',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                         const SizedBox(height: 80),
                       ],
                     ),

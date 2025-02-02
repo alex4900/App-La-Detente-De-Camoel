@@ -2,7 +2,6 @@ import 'dart:convert'; // Nécessaire pour la conversion JSON
 import 'package:http/http.dart' as http;
 import 'config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 
 /// On vérifie si un QR code correspond à une réservation valide dans la base de données.
 Future<Map<String, dynamic>> checkReservation(String qrCode) async {

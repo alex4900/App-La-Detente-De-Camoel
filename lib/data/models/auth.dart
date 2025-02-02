@@ -33,9 +33,30 @@ class AuthService {
     }
   }
 
-  Future<bool> isAuthenticated() async {
+  static Future<String> getUserRole() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    return token != null;
+
+    if (token == null) {
+      return 'Non authentifié';
+    }
+
+    // Envoi de la requête pour récupérer le rôle
+    var url = Uri.parse("${AppConfig.baseUrl}/roles");
+    var response = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data['role'] ?? 'Aucun rôle';
+    } else {
+      return 'Erreur de récupération du rôle';
+    }
   }
 }
