@@ -313,6 +313,7 @@ class _Page2State extends State<Page2> {
         );
       }
 
+  // Clear form and show success message
   setState(() {
     selectedItems.clear();
     totalAmount = 0;
@@ -320,7 +321,16 @@ class _Page2State extends State<Page2> {
     Page2.savedTotal = 0;
     tableNumberController.clear();
   });
-  }
+
+  // Afficher le message de succès
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Commande enregistrée avec succès !'),
+      backgroundColor: Colors.green,
+      duration: Duration(seconds: 2),
+    ),
+  );
+}
 
   List<dynamic> getItemsByCategory() {
     if (currentSection.isEmpty) return [];

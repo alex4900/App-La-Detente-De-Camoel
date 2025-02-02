@@ -31,13 +31,13 @@ class _Page3State extends State<Page3> {
   String getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'en attente':
-        return '#FFA500';
-      case 'en préparation':
-        return '#4169E1';
+        return '#FFA500'; // Orange
+      case 'modifié':
+        return '#4169E1'; // Bleu royal
       case 'prêt':
-        return '#32CD32';
+        return '#2E7D32'; // Vert foncé
       case 'annulé':
-        return '#FF0000';
+        return '#757575'; // Gris
       default:
         return '#808080';
     }
@@ -92,6 +92,11 @@ class _Page3State extends State<Page3> {
   }
 
   void modifyOrder(Map<String, dynamic> order) {
+    // Avant de naviguer vers la page de modification
+    setState(() {
+      order['status'] = 'Modifié'; // Change le statut à "Modifié"
+    });
+
     // Sauvegarder les items de la commande dans Page2
     Page2.savedItems = Map.fromEntries(
       (order['items'] as List).map((item) => MapEntry(
@@ -165,6 +170,7 @@ class _Page3State extends State<Page3> {
         final responseData = jsonDecode(response.body);
         print(responseData);
         setState(() {
+          order['status'] = 'Prêt'; // Change le statut à "Prêt"
           order['idCommande'] = responseData['IDCOMMANDE']; // Stocke l'ID de commande retourné
         });
         
@@ -338,21 +344,21 @@ class _Page3State extends State<Page3> {
                                   ElevatedButton(
                                     onPressed: () => confirmOrder(order),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
+                                      backgroundColor: Colors.green[600], // Vert plus foncé pour meilleure lisibilité
                                     ),
                                     child: const Text('Confirmer'),
                                   ),
                                   ElevatedButton(
                                     onPressed: () => modifyOrder(order),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
+                                      backgroundColor: Colors.blue[600], // Bleu plus foncé pour meilleure lisibilité
                                     ),
                                     child: const Text('Modifier'),
                                   ),
                                   ElevatedButton(
                                     onPressed: () => showCancelDialog(order),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: Colors.grey[400], // Gris au lieu de rouge
                                     ),
                                     child: const Text('Annuler'),
                                   ),
@@ -369,53 +375,6 @@ class _Page3State extends State<Page3> {
                                   ),
                                 ),
                               ),
-                          ],
-                        ),
-                      ),
-                      // Ajout des boutons d'action
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                // Logique pour confirmer
-                                setState(() {
-                                  order['status'] = 'prêt';
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color(0xFF32CD32), // Vert
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Confirmer'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Logique pour modifier
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color(0xFF4169E1), // Bleu
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Modifier'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Logique pour annuler
-                                setState(() {
-                                  Page3.confirmedOrders.removeAt(index);
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey, // Gris
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Annuler'),
-                            ),
                           ],
                         ),
                       ),
