@@ -160,6 +160,53 @@ class _Page3State extends State<Page3> {
                           ],
                         ),
                       ),
+                      // Ajout des boutons d'action
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                // Logique pour confirmer
+                                setState(() {
+                                  order['status'] = 'prêt';
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color(0xFF32CD32), // Vert
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Confirmer'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Logique pour modifier
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color(0xFF4169E1), // Bleu
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Modifier'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Logique pour annuler
+                                setState(() {
+                                  Page3.confirmedOrders.removeAt(index);
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey, // Gris
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Annuler'),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 );
