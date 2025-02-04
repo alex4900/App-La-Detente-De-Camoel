@@ -337,7 +337,7 @@ class _Page3State extends State<Page3> {
                             ),
                             const SizedBox(height: 16),
                             // Action buttons row
-                            if (order['status'] == 'En attente')
+                            if (order['status'] == 'En attente' || order['status'] == 'Modifié')
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
