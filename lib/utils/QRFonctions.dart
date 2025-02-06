@@ -125,3 +125,32 @@ Future<List<dynamic>> changerTables(String idReservation, int? idTableChangee) a
   }
 }
 
+Future<void> validerQR(String idReservation) async {
+
+  List<dynamic> donnees = [];
+
+  var headers = {
+    'Accept': 'application/json',
+  };
+
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+
+  if (token == null) {
+    throw Exception("Vous n'êtes pas connecté !");
+  }
+
+  headers['Authorization'] = 'Bearer $token';
+
+  String url = '${AppConfig.baseUrl}/reservation/valider/$idReservation';
+
+
+  var request = http.Request('PATCH', Uri.parse(url));
+  request.body = '''''';
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+  String responseData = await response.stream.bytesToString();
+
+}
+

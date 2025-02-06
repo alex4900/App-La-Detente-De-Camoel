@@ -110,6 +110,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           );
         } else {
           // Sinon, on redirige vers la page de résultats avec les détails de la réservation
+          validerQR(data['idReservation']);
           Navigator.push(
             context,
             MaterialPageRoute(
