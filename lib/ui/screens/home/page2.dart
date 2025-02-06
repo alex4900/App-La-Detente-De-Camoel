@@ -465,28 +465,48 @@ class _Page2State extends State<Page2> {
         final id = item['IDPLAT'].toString();
         final isSelected = selectedItems.containsKey(id);
         final quantity = selectedItems[id]?['quantity'] ?? 0;
+        final isOutOfStock = (item['QTE'] ?? 0) <= 0; // Modification ici pour utiliser QTE
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
             title: Text(item['LIBELLEPLAT']),
-            subtitle: Text('${item['PRIXPLATHT']}€'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${item['PRIXPLATHT']}€'),
+                if (isOutOfStock)
+                  const Text(
+                    'Rupture de stock',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+              ],
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (item['VEGGIE']) const Icon(Icons.eco, color: Colors.green),
                 const SizedBox(width: 8),
-                if (isSelected) ...[
+                if (isSelected && !isOutOfStock) ...[
                   IconButton(
                     icon: const Icon(Icons.remove_circle, color: Colors.red),
                     onPressed: () => updateItemQuantity(item['IDPLAT'], -1),
                   ),
                   Text('$quantity'),
                 ],
-                IconButton(
-                  icon: const Icon(Icons.add_circle, color: Colors.green),
-                  onPressed: () => updateItemQuantity(item['IDPLAT'], 1),
-                ),
+                if (!isOutOfStock)
+                  IconButton(
+                    icon: const Icon(Icons.add_circle, color: Colors.green),
+                    onPressed: () => updateItemQuantity(item['IDPLAT'], 1),
+                  ),
+                if (isOutOfStock)
+                  const IconButton(
+                    icon: Icon(Icons.add_circle, color: Colors.grey),
+                    onPressed: null,
+                  ),
               ],
             ),
           ),
