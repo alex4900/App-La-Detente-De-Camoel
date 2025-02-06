@@ -1,4 +1,5 @@
 import 'dart:convert'; // Nécessaire pour la conversion JSON
+import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,8 +23,6 @@ Future<Map<String, dynamic>> checkReservation(String qrCode) async {
   headers['Authorization'] = 'Bearer $token';
 
   String url = '${AppConfig.baseUrl}/reservation/qrCode/?QrCode=$qrCode';
-  print("coucuo " + url);
-  print(token);
   var request = http.Request('GET', Uri.parse(url));
   request.body = '''''';
   request.headers.addAll(headers);
@@ -123,5 +122,35 @@ Future<List<dynamic>> changerTables(String idReservation, int? idTableChangee) a
       message['message'], -1
     ];
   }
+}
+
+Future<void> validerQR(Map<String, dynamic> Reservation) async {
+
+  List<dynamic> donnees = [];
+  int idReservation = int.parse(Reservation['id_reservation']);
+
+  var headers = {
+    'Accept': 'application/json',
+  };
+
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+
+  if (token == null) {
+    throw Exception("Vous n'êtes pas connecté !");
+  }
+
+  headers['Authorization'] = 'Bearer $token';
+
+  String url = '${AppConfig.baseUrl}/reservation/valider/$idReservation';
+
+
+  var request = http.Request('PATCH', Uri.parse(url));
+  request.body = '''''';
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+  String responseData = await response.stream.bytesToString();
+
 }
 
