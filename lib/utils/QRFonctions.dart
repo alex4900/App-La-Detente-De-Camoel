@@ -1,5 +1,4 @@
 import 'dart:convert'; // Nécessaire pour la conversion JSON
-import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
